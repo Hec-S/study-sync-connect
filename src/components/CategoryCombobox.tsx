@@ -34,18 +34,19 @@ export function CategoryCombobox({
 }: CategoryComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [otherCategory, setOtherCategory] = React.useState("");
+  const [flattenedCategories, setFlattenedCategories] = React.useState<Array<{ value: string; label: string }>>([]);
 
   // Ensure categories is always an array
   const safeCategories = Array.isArray(categories) ? categories : [];
 
-  // Safely flatten categories for the combobox with additional null checks
-  const flatCategories = React.useMemo(() => {
-    return safeCategories.flatMap((category) => {
+  // Initialize flattened categories
+  React.useEffect(() => {
+    const flattened = safeCategories.flatMap((category) => {
       if (!category) return [];
       
       const mainCategory = { value: category.id, label: category.name };
       const subCategories = (category.subcategories || [])
-        .filter(Boolean) // Filter out any null/undefined subcategories
+        .filter(Boolean)
         .map((sub) => ({
           value: `${category.id}-${sub.id}`,
           label: `${category.name} - ${sub.name}`,
@@ -53,14 +54,14 @@ export function CategoryCombobox({
 
       return [mainCategory, ...subCategories];
     });
-  }, [safeCategories]);
 
-  // Add "Other" option
-  React.useEffect(() => {
-    if (!flatCategories.some(cat => cat.value === "other")) {
-      flatCategories.push({ value: "other", label: "Other" });
+    // Add "Other" option if it doesn't exist
+    if (!flattened.some(cat => cat.value === "other")) {
+      flattened.push({ value: "other", label: "Other" });
     }
-  }, [flatCategories]);
+
+    setFlattenedCategories(flattened);
+  }, [safeCategories]);
 
   const handleSelect = React.useCallback((currentValue: string) => {
     setOpen(false);
@@ -158,7 +159,7 @@ export function CategoryCombobox({
       {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedCategories.map((categoryId) => {
-            const category = flatCategories.find((c) => c.value === categoryId);
+            const category = flattenedCategories.find((c) => c.value === categoryId);
             return (
               <Badge
                 key={categoryId}
