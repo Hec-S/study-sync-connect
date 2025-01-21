@@ -1,7 +1,15 @@
 import { ProjectCard } from "./ProjectCard";
 import { useQuery } from "@tanstack/react-query";
 
-const SAMPLE_PROJECTS = [
+interface Project {
+  title: string;
+  description: string;
+  category: string;
+  deadline: string;
+  skills: string[];
+}
+
+const SAMPLE_PROJECTS: Project[] = [
   {
     title: "Mobile App UI Design",
     description: "Looking for a UI/UX designer to help create mockups for a new campus events app. Need someone with experience in mobile design patterns and user research.",
@@ -47,7 +55,7 @@ const SAMPLE_PROJECTS = [
 ];
 
 export const ProjectGrid = () => {
-  const { data: projects } = useQuery({
+  const { data: projects } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: () => new Promise((resolve) => {
       // Simulate API call with a small delay
