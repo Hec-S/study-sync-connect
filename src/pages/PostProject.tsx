@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/Navbar";
-import { CategorySelect } from "@/components/CategorySelect";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
 
 type FormData = {
   title: string;
-  category: string;
+  categories: string[];
   description: string;
   skills: string;
   budget: string;
@@ -27,11 +27,24 @@ type FormData = {
 };
 
 const PostProject = () => {
-  const form = useForm<FormData>();
+  const form = useForm<FormData>({
+    defaultValues: {
+      categories: [],
+    },
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const onSubmit = (data: FormData) => {
+    if (data.categories.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one category",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log("Form submitted:", data);
     toast({
       title: "Project Posted Successfully!",
@@ -76,14 +89,14 @@ const PostProject = () => {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Categories</FormLabel>
                     <FormControl>
-                      <CategorySelect
+                      <CategoryCombobox
                         value={field.value}
-                        onValueChange={field.onChange}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
