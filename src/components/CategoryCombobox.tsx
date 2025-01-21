@@ -35,8 +35,11 @@ export function CategoryCombobox({
   const [open, setOpen] = React.useState(false);
   const [otherCategory, setOtherCategory] = React.useState("");
 
+  // Ensure categories is always an array
+  const safeCategories = Array.isArray(categories) ? categories : [];
+
   // Flatten categories for the combobox
-  const flatCategories = categories.flatMap((category) => [
+  const flatCategories = safeCategories.flatMap((category) => [
     { value: category.id, label: category.name },
     ...(category.subcategories?.map((sub) => ({
       value: `${category.id}-${sub.id}`,
@@ -88,7 +91,7 @@ export function CategoryCombobox({
           <Command>
             <CommandInput placeholder="Search categories..." />
             <CommandEmpty>No category found.</CommandEmpty>
-            {categories.map((category) => (
+            {safeCategories.map((category) => (
               <CommandGroup key={category.id} heading={category.name}>
                 <CommandItem
                   value={category.id}
