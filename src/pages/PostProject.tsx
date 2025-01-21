@@ -13,15 +13,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/Navbar";
+import { CategorySelect } from "@/components/CategorySelect";
 
 type FormData = {
   title: string;
@@ -31,15 +25,6 @@ type FormData = {
   budget: string;
   deadline: string;
 };
-
-const categories = [
-  "Design",
-  "Programming",
-  "Writing",
-  "Marketing",
-  "Research",
-  "Other",
-];
 
 const PostProject = () => {
   const form = useForm<FormData>();
@@ -95,23 +80,12 @@ const PostProject = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category.toLowerCase()}>
-                            {category}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <CategorySelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
