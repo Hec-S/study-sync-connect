@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MessageSquare } from "lucide-react";
+import { Calendar, MessageSquare, ArrowRight } from "lucide-react";
 
 interface ProjectCardProps {
   title: string;
@@ -13,11 +13,13 @@ interface ProjectCardProps {
 
 export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
   return (
-    <Card className="w-full transition-all hover:shadow-lg animate-fadeIn">
+    <Card className="group w-full transition-all hover:shadow-lg animate-fadeIn bg-white border-gray-100">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+            <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
+              {title}
+            </CardTitle>
             <Badge variant="secondary" className="mt-2">
               {category}
             </Badge>
@@ -26,10 +28,10 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
       </CardHeader>
       
       <CardContent>
-        <p className="text-gray-600 mb-4">{description}</p>
+        <p className="text-gray-600 mb-4 line-clamp-2">{description}</p>
         <div className="flex flex-wrap gap-2">
           {skills.map((skill) => (
-            <Badge key={skill} variant="outline">
+            <Badge key={skill} variant="outline" className="bg-blue-50 hover:bg-blue-100">
               {skill}
             </Badge>
           ))}
@@ -41,9 +43,10 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
           <Calendar className="w-4 h-4" />
           <span>Due: {deadline}</span>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="group-hover:gap-4 transition-all">
           <MessageSquare className="w-4 h-4" />
-          Connect
+          <span>Connect</span>
+          <ArrowRight className="w-0 h-4 opacity-0 group-hover:w-4 group-hover:opacity-100 transition-all" />
         </Button>
       </CardFooter>
     </Card>
