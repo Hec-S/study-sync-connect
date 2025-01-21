@@ -28,7 +28,7 @@ interface CategoryComboboxProps {
 }
 
 export function CategoryCombobox({
-  selectedCategories,
+  selectedCategories = [], // Provide default empty array
   onCategoriesChange,
   className,
 }: CategoryComboboxProps) {
@@ -38,19 +38,31 @@ export function CategoryCombobox({
   // Ensure categories is always an array
   const safeCategories = Array.isArray(categories) ? categories : [];
 
-  // Flatten categories for the combobox
-  const flatCategories = safeCategories.flatMap((category) => [
-    { value: category.id, label: category.name },
-    ...(category.subcategories?.map((sub) => ({
-      value: `${category.id}-${sub.id}`,
-      label: `${category.name} - ${sub.name}`,
-    })) || []),
-  ]);
+  // Safely flatten categories for the combobox with additional null checks
+  const flatCategories = React.useMemo(() => {
+    return safeCategories.flatMap((category) => {
+      if (!category) return [];
+      
+      const mainCategory = { value: category.id, label: category.name };
+      const subCategories = (category.subcategories || [])
+        .filter(Boolean) // Filter out any null/undefined subcategories
+        .map((sub) => ({
+          value: `${category.id}-${sub.id}`,
+          label: `${category.name} - ${sub.name}`,
+        }));
+
+      return [mainCategory, ...subCategories];
+    });
+  }, [safeCategories]);
 
   // Add "Other" option
-  flatCategories.push({ value: "other", label: "Other" });
+  React.useEffect(() => {
+    if (!flatCategories.some(cat => cat.value === "other")) {
+      flatCategories.push({ value: "other", label: "Other" });
+    }
+  }, [flatCategories]);
 
-  const handleSelect = (currentValue: string) => {
+  const handleSelect = React.useCallback((currentValue: string) => {
     setOpen(false);
     if (currentValue === "other") {
       if (!selectedCategories.includes("other")) {
@@ -64,11 +76,10 @@ export function CategoryCombobox({
         ? selectedCategories.filter((cat) => cat !== currentValue)
         : [...selectedCategories, currentValue]
     );
-  };
+  }, [selectedCategories, onCategoriesChange]);
 
   const handleOtherCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOtherCategory(e.target.value);
-    // You can handle the custom category value here
   };
 
   return (
@@ -107,7 +118,7 @@ export function CategoryCombobox({
                   />
                   {category.name}
                 </CommandItem>
-                {category.subcategories?.map((sub) => (
+                {(category.subcategories || []).map((sub) => (
                   <CommandItem
                     key={`${category.id}-${sub.id}`}
                     value={`${category.id}-${sub.id}`}
@@ -159,7 +170,7 @@ export function CategoryCombobox({
                   )
                 }
               >
-                {category?.label}
+                {category?.label || categoryId}
                 <X className="ml-1 h-3 w-3" />
               </Badge>
             );
