@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,42 +28,26 @@ interface CategoryComboboxProps {
 }
 
 export function CategoryCombobox({
-  selectedCategories = [], // Provide default empty array
+  selectedCategories,
   onCategoriesChange,
   className,
 }: CategoryComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [otherCategory, setOtherCategory] = React.useState("");
-  const [flattenedCategories, setFlattenedCategories] = React.useState<Array<{ value: string; label: string }>>([]);
 
-  // Ensure categories is always an array
-  const safeCategories = Array.isArray(categories) ? categories : [];
+  // Flatten categories for the combobox
+  const flatCategories = categories.flatMap((category) => [
+    { value: category.id, label: category.name },
+    ...(category.subcategories?.map((sub) => ({
+      value: `${category.id}-${sub.id}`,
+      label: `${category.name} - ${sub.name}`,
+    })) || []),
+  ]);
 
-  // Initialize flattened categories
-  React.useEffect(() => {
-    const flattened = safeCategories.flatMap((category) => {
-      if (!category) return [];
-      
-      const mainCategory = { value: category.id, label: category.name };
-      const subCategories = (category.subcategories || [])
-        .filter(Boolean)
-        .map((sub) => ({
-          value: `${category.id}-${sub.id}`,
-          label: `${category.name} - ${sub.name}`,
-        }));
+  // Add "Other" option
+  flatCategories.push({ value: "other", label: "Other" });
 
-      return [mainCategory, ...subCategories];
-    });
-
-    // Add "Other" option if it doesn't exist
-    if (!flattened.some(cat => cat.value === "other")) {
-      flattened.push({ value: "other", label: "Other" });
-    }
-
-    setFlattenedCategories(flattened);
-  }, [safeCategories]);
-
-  const handleSelect = React.useCallback((currentValue: string) => {
+  const handleSelect = (currentValue: string) => {
     setOpen(false);
     if (currentValue === "other") {
       if (!selectedCategories.includes("other")) {
@@ -77,10 +61,11 @@ export function CategoryCombobox({
         ? selectedCategories.filter((cat) => cat !== currentValue)
         : [...selectedCategories, currentValue]
     );
-  }, [selectedCategories, onCategoriesChange]);
+  };
 
   const handleOtherCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOtherCategory(e.target.value);
+    // You can handle the custom category value here
   };
 
   return (
@@ -103,7 +88,7 @@ export function CategoryCombobox({
           <Command>
             <CommandInput placeholder="Search categories..." />
             <CommandEmpty>No category found.</CommandEmpty>
-            {safeCategories.map((category) => (
+            {categories.map((category) => (
               <CommandGroup key={category.id} heading={category.name}>
                 <CommandItem
                   value={category.id}
@@ -119,7 +104,7 @@ export function CategoryCombobox({
                   />
                   {category.name}
                 </CommandItem>
-                {(category.subcategories || []).map((sub) => (
+                {category.subcategories?.map((sub) => (
                   <CommandItem
                     key={`${category.id}-${sub.id}`}
                     value={`${category.id}-${sub.id}`}
@@ -159,7 +144,7 @@ export function CategoryCombobox({
       {selectedCategories.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedCategories.map((categoryId) => {
-            const category = flattenedCategories.find((c) => c.value === categoryId);
+            const category = flatCategories.find((c) => c.value === categoryId);
             return (
               <Badge
                 key={categoryId}
@@ -171,7 +156,7 @@ export function CategoryCombobox({
                   )
                 }
               >
-                {category?.label || categoryId}
+                {category?.label}
                 <X className="ml-1 h-3 w-3" />
               </Badge>
             );
