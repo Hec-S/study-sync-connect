@@ -1,5 +1,6 @@
 import { ProjectCard } from "./ProjectCard";
 import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Project {
   title: string;
@@ -54,8 +55,24 @@ const SAMPLE_PROJECTS: Project[] = [
   },
 ];
 
+const ProjectGridSkeleton = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-fade-in">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div key={i} className="space-y-4 p-6 border rounded-lg bg-white/50 animate-pulse">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-20 w-full" />
+        <div className="flex gap-2">
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export const ProjectGrid = () => {
-  const { data: projects } = useQuery<Project[]>({
+  const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: () => new Promise((resolve) => {
       // Simulate API call with a small delay
@@ -64,8 +81,12 @@ export const ProjectGrid = () => {
     initialData: SAMPLE_PROJECTS, // Show initial data immediately
   });
 
+  if (isLoading) {
+    return <ProjectGridSkeleton />;
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-fade-in">
       {projects.map((project, index) => (
         <ProjectCard key={index} {...project} />
       ))}
