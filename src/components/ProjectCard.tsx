@@ -17,10 +17,10 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
+            <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
               {title}
             </CardTitle>
-            <Badge variant="secondary" className="mt-2">
+            <Badge variant="secondary" className="mt-2 text-xs md:text-sm">
               {category}
             </Badge>
           </div>
@@ -28,25 +28,25 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
       </CardHeader>
       
       <CardContent>
-        <p className="text-gray-600 mb-4 line-clamp-2">{description}</p>
-        <div className="flex flex-wrap gap-2">
+        <p className="text-sm md:text-base text-gray-600 mb-4 line-clamp-2">{description}</p>
+        <div className="flex flex-wrap gap-1.5 md:gap-2">
           {skills.map((skill) => (
-            <Badge key={skill} variant="outline" className="bg-blue-50 hover:bg-blue-100 transition-colors">
+            <Badge key={skill} variant="outline" className="text-xs md:text-sm bg-blue-50 hover:bg-blue-100 transition-colors">
               {skill}
             </Badge>
           ))}
         </div>
       </CardContent>
       
-      <CardFooter className="flex justify-between items-center">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <Calendar className="w-4 h-4" />
+      <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between items-center">
+        <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500">
+          <Calendar className="w-3 h-3 md:w-4 md:h-4" />
           <span>Due: {deadline}</span>
         </div>
-        <Button className="group-hover:gap-4 transition-all duration-300">
-          <MessageSquare className="w-4 h-4" />
+        <Button size="sm" className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-xs md:text-sm">
+          <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
           <span>Connect</span>
-          <ArrowRight className="w-0 h-4 opacity-0 group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
+          <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
         </Button>
       </CardFooter>
     </Card>
