@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/Navbar";
-import { CategorySelect } from "@/components/CategorySelect";
+import { CategoryCombobox } from "@/components/CategoryCombobox";
 
 type FormData = {
   title: string;
-  category: string;
+  categories: string[];
   description: string;
   skills: string;
   budget: string;
@@ -27,7 +27,11 @@ type FormData = {
 };
 
 const PostProject = () => {
-  const form = useForm<FormData>();
+  const form = useForm<FormData>({
+    defaultValues: {
+      categories: [],
+    },
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -76,14 +80,14 @@ const PostProject = () => {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categories"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Categories</FormLabel>
                     <FormControl>
-                      <CategorySelect
-                        value={field.value}
-                        onValueChange={field.onChange}
+                      <CategoryCombobox
+                        selectedCategories={field.value}
+                        onCategoriesChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
