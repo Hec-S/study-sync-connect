@@ -3,6 +3,7 @@ import { ProjectGrid } from "@/components/ProjectGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
+import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 
 const Index = () => {
   return (
@@ -76,6 +77,10 @@ const Index = () => {
             </Button>
           </div>
           <ProjectGrid />
+        </div>
+
+        <div className="mt-16">
+          <PortfolioPage />
         </div>
       </main>
     </div>
