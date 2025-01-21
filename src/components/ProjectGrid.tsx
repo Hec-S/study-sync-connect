@@ -74,12 +74,12 @@ const ProjectGridSkeleton = () => (
 export const ProjectGrid = () => {
   const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ['projects'],
-    queryFn: () => new Promise((resolve) => {
+    queryFn: () => new Promise<Project[]>((resolve) => {
       setTimeout(() => resolve(SAMPLE_PROJECTS), 300);
     }),
     initialData: SAMPLE_PROJECTS,
     staleTime: 5000, // Keep data fresh for 5 seconds
-    cacheTime: 1000 * 60 * 5, // Cache data for 5 minutes
+    gcTime: 1000 * 60 * 5, // Cache data for 5 minutes (replaced cacheTime with gcTime)
   });
 
   if (isLoading) {
