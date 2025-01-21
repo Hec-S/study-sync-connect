@@ -2,7 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles } from "lucide-react";
+import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
 
 const Index = () => {
   return (
@@ -15,12 +15,30 @@ const Index = () => {
             <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
               Campus Connect
             </h1>
-            <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+            <GraduationCap className="w-12 h-12 text-primary animate-bounce" />
           </div>
           
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+          <p className="text-xl text-gray-600 mb-12 leading-relaxed">
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <Users className="w-8 h-8 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Find Collaborators</h3>
+              <p className="text-gray-600 text-sm">Connect with skilled students who share your interests</p>
+            </div>
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <Sparkles className="w-8 h-8 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Share Projects</h3>
+              <p className="text-gray-600 text-sm">Post your project ideas and find the perfect team</p>
+            </div>
+            <div className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+              <MessageSquare className="w-8 h-8 text-primary mx-auto mb-4" />
+              <h3 className="font-semibold text-lg mb-2">Collaborate</h3>
+              <p className="text-gray-600 text-sm">Work together seamlessly with built-in tools</p>
+            </div>
+          </div>
           
           <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12">
             <div className="flex-1 relative">
@@ -35,15 +53,15 @@ const Index = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mb-16">
-            {['Design', 'Development', 'Research', 'Marketing'].map((category) => (
-              <div
+          <div className="flex flex-wrap justify-center gap-3 max-w-2xl mx-auto mb-16">
+            {['Design', 'Development', 'Research', 'Marketing', 'Writing', 'Data Science'].map((category) => (
+              <Button
                 key={category}
-                className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer"
+                variant="outline"
+                className="bg-white hover:bg-blue-50 transition-colors"
               >
-                <p className="font-medium text-gray-900">{category}</p>
-                <p className="text-sm text-gray-500">Projects</p>
-              </div>
+                {category}
+              </Button>
             ))}
           </div>
         </div>

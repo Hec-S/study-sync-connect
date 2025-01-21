@@ -13,7 +13,7 @@ interface ProjectCardProps {
 
 export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
   return (
-    <Card className="group w-full transition-all hover:shadow-lg animate-fadeIn bg-white border-gray-100">
+    <Card className="group w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
@@ -31,7 +31,7 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
         <p className="text-gray-600 mb-4 line-clamp-2">{description}</p>
         <div className="flex flex-wrap gap-2">
           {skills.map((skill) => (
-            <Badge key={skill} variant="outline" className="bg-blue-50 hover:bg-blue-100">
+            <Badge key={skill} variant="outline" className="bg-blue-50 hover:bg-blue-100 transition-colors">
               {skill}
             </Badge>
           ))}
@@ -43,10 +43,10 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
           <Calendar className="w-4 h-4" />
           <span>Due: {deadline}</span>
         </div>
-        <Button className="group-hover:gap-4 transition-all">
+        <Button className="group-hover:gap-4 transition-all duration-300">
           <MessageSquare className="w-4 h-4" />
           <span>Connect</span>
-          <ArrowRight className="w-0 h-4 opacity-0 group-hover:w-4 group-hover:opacity-100 transition-all" />
+          <ArrowRight className="w-0 h-4 opacity-0 group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
         </Button>
       </CardFooter>
     </Card>
