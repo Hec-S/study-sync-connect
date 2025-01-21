@@ -1,10 +1,38 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Navbar } from "@/components/Navbar";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const LoadingProjectGrid = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div key={i} className="space-y-4 p-6 border rounded-lg">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/4" />
+        <Skeleton className="h-20 w-full" />
+        <div className="flex gap-2">
+          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const LoadingPortfolio = () => (
+  <div className="space-y-4">
+    <Skeleton className="h-8 w-48" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {[1, 2, 3, 4].map((i) => (
+        <Skeleton key={i} className="h-40 w-full" />
+      ))}
+    </div>
+  </div>
+);
 
 const Index = () => {
   return (
@@ -77,11 +105,15 @@ const Index = () => {
               View All
             </Button>
           </div>
-          <ProjectGrid />
+          <Suspense fallback={<LoadingProjectGrid />}>
+            <ProjectGrid />
+          </Suspense>
         </div>
 
         <div className="mt-16">
-          <PortfolioPage />
+          <Suspense fallback={<LoadingPortfolio />}>
+            <PortfolioPage />
+          </Suspense>
         </div>
       </main>
     </div>

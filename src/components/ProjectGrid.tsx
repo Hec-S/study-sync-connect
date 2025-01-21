@@ -1,4 +1,5 @@
 import { ProjectCard } from "./ProjectCard";
+import { useQuery } from "@tanstack/react-query";
 
 const SAMPLE_PROJECTS = [
   {
@@ -46,9 +47,18 @@ const SAMPLE_PROJECTS = [
 ];
 
 export const ProjectGrid = () => {
+  const { data: projects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: () => new Promise((resolve) => {
+      // Simulate API call with a small delay
+      setTimeout(() => resolve(SAMPLE_PROJECTS), 300);
+    }),
+    initialData: SAMPLE_PROJECTS, // Show initial data immediately
+  });
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {SAMPLE_PROJECTS.map((project, index) => (
+      {projects.map((project, index) => (
         <ProjectCard key={index} {...project} />
       ))}
     </div>
