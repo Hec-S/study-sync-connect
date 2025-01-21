@@ -56,9 +56,9 @@ const SAMPLE_PROJECTS: Project[] = [
 ];
 
 const ProjectGridSkeleton = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-fade-in">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 opacity-75 transition-opacity duration-200">
     {[1, 2, 3, 4, 5, 6].map((i) => (
-      <div key={i} className="space-y-4 p-6 border rounded-lg bg-white/50 animate-pulse">
+      <div key={i} className="space-y-4 p-6 border rounded-lg bg-white/50">
         <Skeleton className="h-6 w-3/4" />
         <Skeleton className="h-4 w-1/4" />
         <Skeleton className="h-20 w-full" />
@@ -75,10 +75,11 @@ export const ProjectGrid = () => {
   const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: () => new Promise((resolve) => {
-      // Simulate API call with a small delay
       setTimeout(() => resolve(SAMPLE_PROJECTS), 300);
     }),
-    initialData: SAMPLE_PROJECTS, // Show initial data immediately
+    initialData: SAMPLE_PROJECTS,
+    staleTime: 5000, // Keep data fresh for 5 seconds
+    cacheTime: 1000 * 60 * 5, // Cache data for 5 minutes
   });
 
   if (isLoading) {
@@ -86,7 +87,7 @@ export const ProjectGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-fade-in">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 opacity-100 transition-opacity duration-200">
       {projects.map((project, index) => (
         <ProjectCard key={index} {...project} />
       ))}
