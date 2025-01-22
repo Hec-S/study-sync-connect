@@ -8,7 +8,6 @@ interface UserProfile {
   id: string;
   full_name: string | null;
   school_name: string | null;
-  date_of_birth: string | null;
 }
 
 interface AuthContextType {
@@ -19,7 +18,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, metadata: { 
     full_name: string;
     school_name: string;
-    date_of_birth: string;
   }) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -104,7 +102,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, metadata: {
     full_name: string;
     school_name: string;
-    date_of_birth: string;
   }) => {
     try {
       const { error } = await supabase.auth.signUp({
