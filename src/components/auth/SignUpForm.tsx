@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -141,10 +142,12 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         <Popover>
           <PopoverTrigger asChild>
             <Button
+              id="dateOfBirth"
               variant="outline"
-              className={`w-full justify-start text-left font-normal ${
+              className={cn(
+                "w-full justify-start text-left font-normal",
                 !formData.dateOfBirth && "text-muted-foreground"
-              }`}
+              )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
               {formData.dateOfBirth ? (
@@ -163,7 +166,9 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
               }
               disabled={(date) => {
                 const today = new Date();
-                return date > today;
+                const minAge = new Date();
+                minAge.setFullYear(today.getFullYear() - 13);
+                return date > minAge;
               }}
               initialFocus
             />
