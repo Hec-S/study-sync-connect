@@ -20,8 +20,17 @@ export const SignInForm = ({ onClose }: { onClose: () => void }) => {
     try {
       await signIn(email, password);
       onClose();
-    } catch (error) {
-      // Error is already handled in signIn
+    } catch (error: any) {
+      console.error("Sign in error:", error);
+      
+      // Handle specific error cases
+      if (error?.message?.includes("Invalid login credentials")) {
+        toast.error("Invalid email or password. Please try again.");
+      } else if (error?.message?.includes("Email not confirmed")) {
+        toast.error("Please verify your email address before signing in.");
+      } else {
+        toast.error("Failed to sign in. Please try again later.");
+      }
     } finally {
       setIsLoading(false);
     }
