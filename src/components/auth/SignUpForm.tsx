@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff, CalendarIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { DateOfBirthPicker } from "./DateOfBirthPicker";
+import { PasswordInput } from "./PasswordInput";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +16,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     schoolName: "",
     dateOfBirth: undefined as Date | undefined,
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
 
@@ -111,69 +108,16 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Must be at least 8 characters with letters, numbers, and symbols.
-        </p>
-      </div>
+      <PasswordInput
+        value={formData.password}
+        onChange={handleChange}
+        required
+      />
 
-      <div className="space-y-2">
-        <Label>Date of Birth</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !formData.dateOfBirth && "text-muted-foreground"
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {formData.dateOfBirth ? (
-                format(formData.dateOfBirth, "PPP")
-              ) : (
-                <span>Pick a date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={formData.dateOfBirth}
-              onSelect={(date) =>
-                setFormData((prev) => ({ ...prev, dateOfBirth: date }))
-              }
-              disabled={(date) => {
-                const today = new Date();
-                const minAge = new Date();
-                minAge.setFullYear(today.getFullYear() - 13);
-                return date > minAge;
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+      <DateOfBirthPicker
+        value={formData.dateOfBirth}
+        onChange={(date) => setFormData((prev) => ({ ...prev, dateOfBirth: date }))}
+      />
 
       <div className="space-y-2">
         <Label htmlFor="schoolName">School Name</Label>
