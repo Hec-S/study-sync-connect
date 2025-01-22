@@ -36,12 +36,19 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
 
   const validateAge = (dob: Date | undefined) => {
     if (!dob) return false;
+    
     const today = new Date();
-    const age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      return age - 1 >= 13;
+    const birthDate = new Date(dob);
+    
+    // Calculate age
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust age if birthday hasn't occurred this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
     }
+    
     return age >= 13;
   };
 
@@ -159,7 +166,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
               mode="single"
               selected={formData.dateOfBirth}
               onSelect={(date) =>
-                setFormData((prev) => ({ ...prev, dateOfBirth: date }))
+                setFormData((prev) => ({ ...prev, dateOfBirth: date ?? undefined }))
               }
               disabled={(date) => {
                 const today = new Date();
