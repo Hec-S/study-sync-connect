@@ -170,9 +170,9 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
               }
               disabled={(date) => {
                 const today = new Date();
-                const minDate = new Date();
-                minDate.setFullYear(today.getFullYear() - 18);
-                return date > today || date > minDate;
+                const eighteenYearsAgo = new Date(today);
+                eighteenYearsAgo.setFullYear(today.getFullYear() - 18);
+                return date > today || date >= eighteenYearsAgo;
               }}
               initialFocus
             />
