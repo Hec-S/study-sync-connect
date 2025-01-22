@@ -7,6 +7,7 @@ import { Eye, EyeOff, CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { signUp } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -64,12 +66,18 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual registration logic
-      console.log("Signing up with:", formData);
-      toast.success("Account created! Please check your email for verification.");
+      await signUp(
+        formData.email,
+        formData.password,
+        {
+          full_name: formData.fullName,
+          school_name: formData.schoolName,
+          date_of_birth: format(formData.dateOfBirth, 'yyyy-MM-dd'),
+        }
+      );
       onClose();
     } catch (error) {
-      toast.error("Failed to create account. Please try again.");
+      // Error is already handled in signUp
     } finally {
       setIsLoading(false);
     }

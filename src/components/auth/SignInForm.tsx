@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 
 export const SignInForm = ({ onClose }: { onClose: () => void }) => {
   const [email, setEmail] = useState("");
@@ -67,7 +66,10 @@ export const SignInForm = ({ onClose }: { onClose: () => void }) => {
         type="button"
         variant="link"
         className="px-0 text-sm"
-        onClick={() => toast.info("Password reset functionality coming soon!")}
+        onClick={() => {
+          // TODO: Implement password reset
+          toast.info("Password reset functionality coming soon!");
+        }}
       >
         Forgot password?
       </Button>
