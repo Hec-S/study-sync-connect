@@ -1,13 +1,25 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search, Bell, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { AuthDialog } from "./auth/AuthDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handlePostProject = () => {
+    if (!user) {
+      toast.error("Please sign in to post a project");
+      // Save the attempted path
+      localStorage.setItem("redirectPath", "/create-project");
+      return;
+    }
+    navigate("/create-project");
+  };
 
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -18,14 +30,12 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {user && (
-              <Button variant="outline" asChild className="hidden md:flex">
-                <Link to="/create-project" className="flex items-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
-                  Post Project
-                </Link>
-              </Button>
-            )}
+            <Button variant="outline" asChild className="hidden md:flex">
+              <span onClick={handlePostProject} className="flex items-center gap-2 cursor-pointer">
+                <PlusCircle className="w-4 h-4" />
+                Post Project
+              </span>
+            </Button>
             
             <div className={`fixed inset-0 bg-white/95 md:bg-transparent md:static md:flex items-center gap-2 transition-all duration-300 ${isMenuOpen ? 'flex flex-col pt-20' : 'hidden'}`}>
               <Button variant="ghost" size="icon" className="relative" asChild>
@@ -54,14 +64,12 @@ export const Navbar = () => {
                 <AuthDialog />
               )}
 
-              {user && (
-                <Button variant="outline" asChild className="md:hidden w-full mt-4">
-                  <Link to="/create-project" className="flex items-center justify-center gap-2">
-                    <PlusCircle className="w-4 h-4" />
-                    Post Project
-                  </Link>
-                </Button>
-              )}
+              <Button variant="outline" asChild className="md:hidden w-full mt-4">
+                <span onClick={handlePostProject} className="flex items-center justify-center gap-2 cursor-pointer">
+                  <PlusCircle className="w-4 h-4" />
+                  Post Project
+                </span>
+              </Button>
             </div>
 
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
