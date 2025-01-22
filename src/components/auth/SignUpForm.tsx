@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +14,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     email: "",
     password: "",
     schoolName: "",
+    dateOfBirth: undefined as Date | undefined,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,11 +32,32 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     return minLength && hasLetter && hasNumber && hasSymbol;
   };
 
+  const validateAge = (dob: Date | undefined) => {
+    if (!dob) return false;
+    const today = new Date();
+    const age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      return age - 1 >= 13;
+    }
+    return age >= 13;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validatePassword(formData.password)) {
       toast.error("Password must be at least 8 characters and include letters, numbers, and symbols.");
+      return;
+    }
+
+    if (!formData.dateOfBirth) {
+      toast.error("Please select your date of birth.");
+      return;
+    }
+
+    if (!validateAge(formData.dateOfBirth)) {
+      toast.error("You must be at least 13 years old to create an account.");
       return;
     }
 
@@ -101,6 +126,41 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         <p className="text-xs text-muted-foreground">
           Must be at least 8 characters with letters, numbers, and symbols.
         </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="dateOfBirth">Date of Birth</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={`w-full justify-start text-left font-normal ${
+                !formData.dateOfBirth && "text-muted-foreground"
+              }`}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formData.dateOfBirth ? (
+                format(formData.dateOfBirth, "PPP")
+              ) : (
+                <span>Pick a date</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={formData.dateOfBirth}
+              onSelect={(date) =>
+                setFormData((prev) => ({ ...prev, dateOfBirth: date }))
+              }
+              disabled={(date) => {
+                const today = new Date();
+                return date > today;
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="space-y-2">
