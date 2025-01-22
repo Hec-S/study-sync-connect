@@ -41,6 +41,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fadeIn">
+          {/* Hero Section */}
           <div className="flex items-center justify-center gap-2 mb-6">
             <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
               Campus Connect
@@ -52,6 +53,7 @@ const Index = () => {
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
 
+          {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 px-4 md:px-0">
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
@@ -70,6 +72,7 @@ const Index = () => {
             </div>
           </div>
           
+          {/* Search Section */}
           <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12 px-4 md:px-0">
             <div className="flex-1 relative">
               <Input
@@ -83,6 +86,7 @@ const Index = () => {
             </Button>
           </div>
 
+          {/* Categories */}
           <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-2xl mx-auto mb-16 px-4 md:px-0">
             {['Design', 'Development', 'Research', 'Marketing', 'Writing', 'Data Science'].map((category) => (
               <Button
@@ -96,9 +100,10 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="mb-12 px-4 md:px-0">
+        {/* Latest Projects Section */}
+        <section className="mb-20 bg-white rounded-2xl shadow-sm p-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
               Latest Projects
             </h2>
             <Button variant="outline" className="text-sm md:text-base">
@@ -108,13 +113,22 @@ const Index = () => {
           <Suspense fallback={<LoadingProjectGrid />}>
             <ProjectGrid />
           </Suspense>
-        </div>
+        </section>
 
-        <div className="mt-16">
+        {/* Portfolio Section */}
+        <section className="bg-white rounded-2xl shadow-sm p-8">
+          <div className="mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Portfolio
+            </h2>
+            <p className="text-gray-600">
+              Showcase your work and connect with potential collaborators
+            </p>
+          </div>
           <Suspense fallback={<LoadingPortfolio />}>
             <PortfolioPage />
           </Suspense>
-        </div>
+        </section>
       </main>
     </div>
   );
