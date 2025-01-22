@@ -168,10 +168,9 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
               onSelect={(date) =>
                 setFormData((prev) => ({ ...prev, dateOfBirth: date ?? undefined }))
               }
-              disabled={(date) => {
-                const today = new Date();
-                return date > today;
-              }}
+              disabled={(date) =>
+                date > new Date() || date > new Date().setFullYear(new Date().getFullYear() - 18)
+              }
               initialFocus
             />
           </PopoverContent>
