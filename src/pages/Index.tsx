@@ -68,7 +68,7 @@ const Index = () => {
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">Collaborate</h3>
-              <p className="text-gray-600 text-xs md:text-sm">Work together seamlessly with built-in tools</p>
+              <p className="text-gray-600 text-xs md:text-sm">Collaborate in real-time using powerful project management features</p>
             </div>
           </div>
           
