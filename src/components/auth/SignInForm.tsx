@@ -2,26 +2,25 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const SignInForm = ({ onClose }: { onClose: () => void }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual authentication logic
-      console.log("Signing in with:", { email, password });
-      toast.success("Successfully signed in!");
+      await signIn(email, password);
       onClose();
     } catch (error) {
-      toast.error("Failed to sign in. Please try again.");
+      // Error is already handled in signIn
     } finally {
       setIsLoading(false);
     }

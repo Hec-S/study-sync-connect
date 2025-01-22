@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search, Bell, Menu } from "lucide-react";
+import { PlusCircle, Search, Bell, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { AuthDialog } from "./auth/AuthDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
@@ -37,7 +39,18 @@ export const Navbar = () => {
                 </Link>
               </Button>
 
-              <AuthDialog />
+              {user ? (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/portfolio">Portfolio</Link>
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={signOut}>
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </>
+              ) : (
+                <AuthDialog />
+              )}
 
               <Button variant="outline" asChild className="md:hidden w-full mt-4">
                 <Link to="/create-project" className="flex items-center justify-center gap-2">
