@@ -49,7 +49,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
       age--;
     }
     
-    return age >= 13;
+    return age >= 18;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,7 +66,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     }
 
     if (!validateAge(formData.dateOfBirth)) {
-      toast.error("You must be at least 13 years old to create an account.");
+      toast.error("You must be at least 18 years old to create an account.");
       return;
     }
 
