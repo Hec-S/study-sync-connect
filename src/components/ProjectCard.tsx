@@ -29,57 +29,59 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
   const truncatedDescription = isExpanded ? description : description.slice(0, 100) + (description.length > 100 ? "..." : "");
 
   return (
-    <Card className="group w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
-              {title}
-            </CardTitle>
-            <Badge 
-              variant="secondary" 
-              className={`mt-2 text-xs md:text-sm ${getCategoryColor(category)}`}
+    <Card className="group h-full flex flex-col justify-between w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
+      <div>
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                {title}
+              </CardTitle>
+              <Badge 
+                variant="secondary" 
+                className={`mt-2 text-xs md:text-sm ${getCategoryColor(category)}`}
+              >
+                {category}
+              </Badge>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 ${isBookmarked ? 'text-primary' : 'text-gray-400'}`}
+              onClick={() => setIsBookmarked(!isBookmarked)}
             >
-              {category}
-            </Badge>
+              <Bookmark className="h-4 w-4" fill={isBookmarked ? "currentColor" : "none"} />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${isBookmarked ? 'text-primary' : 'text-gray-400'}`}
-            onClick={() => setIsBookmarked(!isBookmarked)}
-          >
-            <Bookmark className="h-4 w-4" fill={isBookmarked ? "currentColor" : "none"} />
-          </Button>
-        </div>
-      </CardHeader>
+        </CardHeader>
+        
+        <CardContent>
+          <p className="text-sm md:text-base text-gray-600 mb-4">
+            {truncatedDescription}
+            {description.length > 100 && (
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="ml-1 text-primary hover:underline font-medium"
+              >
+                {isExpanded ? "Show less" : "Read more"}
+              </button>
+            )}
+          </p>
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
+            {skills.map((skill) => (
+              <Badge 
+                key={skill} 
+                variant="outline" 
+                className="text-xs md:text-sm bg-blue-50 hover:bg-blue-100 transition-colors"
+              >
+                {skill}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
+      </div>
       
-      <CardContent>
-        <p className="text-sm md:text-base text-gray-600 mb-4">
-          {truncatedDescription}
-          {description.length > 100 && (
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="ml-1 text-primary hover:underline font-medium"
-            >
-              {isExpanded ? "Show less" : "Read more"}
-            </button>
-          )}
-        </p>
-        <div className="flex flex-wrap gap-1.5 md:gap-2">
-          {skills.map((skill) => (
-            <Badge 
-              key={skill} 
-              variant="outline" 
-              className="text-xs md:text-sm bg-blue-50 hover:bg-blue-100 transition-colors"
-            >
-              {skill}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
-      
-      <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between items-center border-t pt-4">
+      <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between items-center border-t pt-4 mt-auto">
         <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500">
           <Calendar className="w-3 h-3 md:w-4 md:h-4" />
           <span>Due: {deadline}</span>
