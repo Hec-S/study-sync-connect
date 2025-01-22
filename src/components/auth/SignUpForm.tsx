@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff, Upload } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
@@ -15,7 +14,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [idFile, setIdFile] = useState<File | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,12 +36,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    const isEduEmail = formData.email.endsWith('.edu');
-    if (!isEduEmail && !idFile) {
-      toast.error("Please provide a college ID for non-.edu email addresses.");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -55,13 +47,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
       toast.error("Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setIdFile(e.target.files[0]);
-      toast.success("ID uploaded successfully!");
     }
   };
 
@@ -129,28 +114,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
           required
         />
       </div>
-
-      {!formData.email.endsWith('.edu') && (
-        <div className="space-y-2">
-          <Label htmlFor="collegeId">College ID Upload</Label>
-          <div className="relative">
-            <Input
-              id="collegeId"
-              type="file"
-              accept="image/*,.pdf"
-              onChange={handleFileChange}
-              className={cn(
-                "cursor-pointer file:cursor-pointer",
-                idFile && "text-green-600"
-              )}
-            />
-            <Upload className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Please upload a clear image or PDF of your college ID
-          </p>
-        </div>
-      )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Creating Account..." : "Sign Up"}
