@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { format } from "date-fns";
-import { DateOfBirthPicker } from "./DateOfBirthPicker";
 import { PasswordInput } from "./PasswordInput";
 
 export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
@@ -14,7 +12,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     email: "",
     password: "",
     schoolName: "",
-    dateOfBirth: undefined as Date | undefined,
   });
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
@@ -32,32 +29,11 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     return minLength && hasLetter && hasNumber && hasSymbol;
   };
 
-  const validateAge = (dob: Date | undefined) => {
-    if (!dob) return false;
-    const today = new Date();
-    const age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      return age - 1 >= 13;
-    }
-    return age >= 13;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validatePassword(formData.password)) {
       toast.error("Password must be at least 8 characters and include letters, numbers, and symbols.");
-      return;
-    }
-
-    if (!formData.dateOfBirth) {
-      toast.error("Please select your date of birth.");
-      return;
-    }
-
-    if (!validateAge(formData.dateOfBirth)) {
-      toast.error("You must be at least 13 years old to create an account.");
       return;
     }
 
@@ -70,7 +46,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         {
           full_name: formData.fullName,
           school_name: formData.schoolName,
-          date_of_birth: format(formData.dateOfBirth, 'yyyy-MM-dd'),
         }
       );
       onClose();
@@ -112,11 +87,6 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         value={formData.password}
         onChange={handleChange}
         required
-      />
-
-      <DateOfBirthPicker
-        value={formData.dateOfBirth}
-        onChange={(date) => setFormData((prev) => ({ ...prev, dateOfBirth: date }))}
       />
 
       <div className="space-y-2">
