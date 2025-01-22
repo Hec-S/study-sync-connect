@@ -27,7 +27,14 @@ const App = () => {
             <TooltipProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/create-project" element={<PostProject />} />
+                <Route
+                  path="/create-project"
+                  element={
+                    <ProtectedRoute>
+                      <PostProject />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/portfolio"
                   element={

@@ -18,12 +18,14 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            <Button variant="outline" asChild className="hidden md:flex">
-              <Link to="/create-project" className="flex items-center gap-2">
-                <PlusCircle className="w-4 h-4" />
-                Post Project
-              </Link>
-            </Button>
+            {user && (
+              <Button variant="outline" asChild className="hidden md:flex">
+                <Link to="/create-project" className="flex items-center gap-2">
+                  <PlusCircle className="w-4 h-4" />
+                  Post Project
+                </Link>
+              </Button>
+            )}
             
             <div className={`fixed inset-0 bg-white/95 md:bg-transparent md:static md:flex items-center gap-2 transition-all duration-300 ${isMenuOpen ? 'flex flex-col pt-20' : 'hidden'}`}>
               <Button variant="ghost" size="icon" className="relative" asChild>
@@ -52,12 +54,14 @@ export const Navbar = () => {
                 <AuthDialog />
               )}
 
-              <Button variant="outline" asChild className="md:hidden w-full mt-4">
-                <Link to="/create-project" className="flex items-center justify-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
-                  Post Project
-                </Link>
-              </Button>
+              {user && (
+                <Button variant="outline" asChild className="md:hidden w-full mt-4">
+                  <Link to="/create-project" className="flex items-center justify-center gap-2">
+                    <PlusCircle className="w-4 h-4" />
+                    Post Project
+                  </Link>
+                </Button>
+              )}
             </div>
 
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
