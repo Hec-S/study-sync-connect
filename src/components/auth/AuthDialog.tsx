@@ -12,18 +12,22 @@ import { SignInForm } from "./SignInForm";
 import { SignUpForm } from "./SignUpForm";
 import { UserPlus } from "lucide-react";
 
-export const AuthDialog = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface AuthDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
 
   const handleClose = () => {
-    setIsOpen(false);
+    onOpenChange?.(false);
     // Reset to default mode when dialog closes
     setTimeout(() => setMode("signin"), 300);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
           <UserPlus className="h-4 w-4" />

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -16,6 +17,8 @@ export const Navbar = () => {
       toast.error("Please sign in to post a project");
       // Save the attempted path
       localStorage.setItem("redirectPath", "/create-project");
+      // Show auth dialog
+      setShowAuthDialog(true);
       return;
     }
     navigate("/create-project");
@@ -61,7 +64,7 @@ export const Navbar = () => {
                   </Button>
                 </>
               ) : (
-                <AuthDialog />
+                <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
               )}
 
               <Button variant="outline" asChild className="md:hidden w-full mt-4">
