@@ -138,11 +138,10 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="dateOfBirth">Date of Birth</Label>
+        <Label>Date of Birth</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
-              id="dateOfBirth"
               variant="outline"
               className={cn(
                 "w-full justify-start text-left font-normal",
