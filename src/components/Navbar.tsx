@@ -15,7 +15,9 @@ export const Navbar = () => {
   const handlePostProject = () => {
     if (!user) {
       toast.error("Please sign in to post a project");
+      // Save the attempted path
       localStorage.setItem("redirectPath", "/create-project");
+      // Show auth dialog
       setShowAuthDialog(true);
       return;
     }
@@ -31,49 +33,49 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="hidden md:flex">
               <span onClick={handlePostProject} className="flex items-center gap-2 cursor-pointer">
                 <PlusCircle className="w-4 h-4" />
                 Post Project
               </span>
             </Button>
             
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link to="/notifications">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </Link>
-            </Button>
-            
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/search">
-                <Search className="w-5 h-5" />
-              </Link>
-            </Button>
-
-            {user ? (
-              <>
-                <Button variant="outline" asChild>
-                  <Link to="/portfolio">Portfolio</Link>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={signOut}>
-                  <LogOut className="w-5 h-5" />
-                </Button>
-              </>
-            ) : (
-              <Button variant="outline" onClick={() => setShowAuthDialog(true)}>
-                Sign In
+            <div className={`fixed inset-0 bg-white/95 md:bg-transparent md:static md:flex items-center gap-2 transition-all duration-300 ${isMenuOpen ? 'flex flex-col pt-20' : 'hidden'}`}>
+              <Button variant="ghost" size="icon" className="relative" asChild>
+                <Link to="/notifications">
+                  <Bell className="w-5 h-5" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                </Link>
               </Button>
-            )}
+              
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/search">
+                  <Search className="w-5 h-5" />
+                </Link>
+              </Button>
 
-            <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
+              {user ? (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/portfolio">Portfolio</Link>
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={signOut}>
+                    <LogOut className="w-5 h-5" />
+                  </Button>
+                </>
+              ) : (
+                <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
+              )}
 
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="md:hidden" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
+              <Button variant="outline" asChild className="md:hidden w-full mt-4">
+                <span onClick={handlePostProject} className="flex items-center justify-center gap-2 cursor-pointer">
+                  <PlusCircle className="w-4 h-4" />
+                  Post Project
+                </span>
+              </Button>
+            </div>
+
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <Menu className="w-5 h-5" />
             </Button>
           </div>
