@@ -12,6 +12,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
     email: "",
     password: "",
     schoolName: "",
+    major: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
@@ -46,6 +47,7 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
         {
           full_name: formData.fullName,
           school_name: formData.schoolName,
+          major: formData.major,
         }
       );
       onClose();
@@ -96,6 +98,18 @@ export const SignUpForm = ({ onClose }: { onClose: () => void }) => {
           name="schoolName"
           placeholder="University Name"
           value={formData.schoolName}
+          onChange={handleChange}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="major">Major</Label>
+        <Input
+          id="major"
+          name="major"
+          placeholder="Computer Science"
+          value={formData.major}
           onChange={handleChange}
           required
         />
