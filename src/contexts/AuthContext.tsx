@@ -2,30 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
-
-interface UserProfile {
-  id: string;
-  full_name: string | null;
-  school_name: string | null;
-}
-
-interface AuthContextType {
-  user: User | null;
-  profile: UserProfile | null;
-  isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, metadata: { 
-    full_name: string;
-    school_name: string;
-  }) => Promise<void>;
-  signOut: () => Promise<void>;
-}
+import { AuthContextType, UserProfile } from "@/types/auth";
+import { fetchProfile, handleSignIn, handleSignUp, handleSignOut } from "@/services/auth";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthContextType["user"]>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -35,7 +18,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id).then(setProfile);
       }
       setIsLoading(false);
     });
@@ -47,7 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log("Auth state changed:", event);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await fetchProfile(session.user.id);
+        const profile = await fetchProfile(session.user.id);
+        setProfile(profile);
       } else {
         setProfile(null);
       }
@@ -59,39 +43,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        return;
-      }
-
-      setProfile(data);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
-
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      toast.success("Successfully signed in!");
-      
-      // Get the redirect path from localStorage or default to "/"
+      await handleSignIn(email, password);
       const redirectPath = localStorage.getItem("redirectPath") || "/";
-      localStorage.removeItem("redirectPath"); // Clear the redirect path
+      localStorage.removeItem("redirectPath");
       navigate(redirectPath);
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
@@ -104,17 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     school_name: string;
   }) => {
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: metadata,
-        },
-      });
-
-      if (error) throw error;
-
-      toast.success("Successfully signed up! Please check your email for verification.");
+      await handleSignUp(email, password, metadata);
     } catch (error: any) {
       toast.error(error.message || "Failed to sign up");
       throw error;
@@ -123,14 +69,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      // Clear user and profile state
+      await handleSignOut();
       setUser(null);
       setProfile(null);
-      
-      toast.success("Successfully signed out!");
       navigate("/");
     } catch (error: any) {
       console.error("Sign out error:", error);
