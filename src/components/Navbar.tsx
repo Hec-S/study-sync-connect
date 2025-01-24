@@ -67,7 +67,13 @@ export const Navbar = () => {
               )}
             </div>
 
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {/* Mobile menu button - now visible but doesn't trigger any menu since all items are hidden */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden opacity-50 cursor-not-allowed" 
+              disabled
+            >
               <Menu className="w-5 h-5" />
             </Button>
           </div>
