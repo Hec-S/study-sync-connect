@@ -31,48 +31,48 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Hidden elements kept for future use */}
-            <div className="hidden">
-              <Button variant="outline" asChild>
-                <span onClick={handlePostProject} className="flex items-center gap-2 cursor-pointer">
-                  <PlusCircle className="w-4 h-4" />
-                  Post Project
-                </span>
-              </Button>
-              
-              <Button variant="ghost" size="icon" className="relative" asChild>
-                <Link to="/notifications">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                </Link>
-              </Button>
-              
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/search">
-                  <Search className="w-5 h-5" />
-                </Link>
-              </Button>
+            <Button variant="outline" asChild>
+              <span onClick={handlePostProject} className="flex items-center gap-2 cursor-pointer">
+                <PlusCircle className="w-4 h-4" />
+                Post Project
+              </span>
+            </Button>
+            
+            <Button variant="ghost" size="icon" className="relative" asChild>
+              <Link to="/notifications">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+              </Link>
+            </Button>
+            
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/search">
+                <Search className="w-5 h-5" />
+              </Link>
+            </Button>
 
-              {user ? (
-                <>
-                  <Button variant="outline" asChild>
-                    <Link to="/portfolio">Portfolio</Link>
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={signOut}>
-                    <LogOut className="w-5 h-5" />
-                  </Button>
-                </>
-              ) : (
-                <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
-              )}
-            </div>
+            {user ? (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/portfolio">Portfolio</Link>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={signOut}>
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </>
+            ) : (
+              <Button variant="outline" onClick={() => setShowAuthDialog(true)}>
+                Sign In
+              </Button>
+            )}
 
-            {/* Mobile menu button - now visible but doesn't trigger any menu since all items are hidden */}
+            <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
+
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden opacity-50 cursor-not-allowed" 
-              disabled
+              className="md:hidden" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <Menu className="w-5 h-5" />
             </Button>
