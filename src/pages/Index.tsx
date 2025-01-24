@@ -40,7 +40,7 @@ const Index = () => {
       <Navbar />
       
       {/* Coming Soon Section */}
-      <div className="container mx-auto px-4 py-8 md:py-16 text-center animate-fadeIn">
+      <div className="hidden container mx-auto px-4 py-8 md:py-16 text-center animate-fadeIn">
         <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
           <div className="flex items-center justify-center gap-2 md:gap-4">
             <Globe className="w-8 h-8 md:w-16 md:h-16 text-primary animate-pulse" />
