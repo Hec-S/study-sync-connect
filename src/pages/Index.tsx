@@ -39,8 +39,8 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
       
-      {/* Coming Soon Section - Visible and Mobile Responsive */}
-      <div className="container mx-auto px-4 py-8 md:py-16 text-center animate-fadeIn">
+      {/* Coming Soon Section - Hidden */}
+      <div className="container mx-auto px-4 py-8 md:py-16 text-center animate-fadeIn hidden">
         <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
           <div className="flex items-center justify-center gap-2 md:gap-4">
             <Globe className="w-8 h-8 md:w-16 md:h-16 text-primary animate-pulse" />
@@ -71,8 +71,8 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Main Site Content - Hidden */}
-      <main className="container mx-auto px-4 py-8 hidden">
+      {/* Main Site Content - Visible */}
+      <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="flex items-center justify-center gap-2 mb-6">
           <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
