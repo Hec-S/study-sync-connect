@@ -4,6 +4,7 @@ export interface UserProfile {
   id: string;
   full_name: string | null;
   school_name: string | null;
+  major: string | null;
 }
 
 export interface AuthContextType {
@@ -14,6 +15,7 @@ export interface AuthContextType {
   signUp: (email: string, password: string, metadata: { 
     full_name: string;
     school_name: string;
+    major: string;
   }) => Promise<void>;
   signOut: () => Promise<void>;
 }
