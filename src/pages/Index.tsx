@@ -39,31 +39,31 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
       
-      {/* Coming Soon Section - Visible and Mobile Responsive */}
-      <div className="container mx-auto px-4 py-8 md:py-16 text-center animate-fadeIn">
-        <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
-          <div className="flex items-center justify-center gap-2 md:gap-4">
-            <Globe className="w-8 h-8 md:w-16 md:h-16 text-primary animate-pulse" />
-            <h1 className="text-3xl md:text-6xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+      {/* Coming Soon Section - Visible */}
+      <div className="container mx-auto px-4 py-16 md:py-24 text-center animate-fadeIn">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="flex items-center justify-center gap-4">
+            <Globe className="w-12 h-12 md:w-16 md:h-16 text-primary animate-pulse" />
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
               Campus Connect
             </h1>
-            <GraduationCap className="w-8 h-8 md:w-16 md:h-16 text-primary animate-bounce" />
+            <GraduationCap className="w-12 h-12 md:w-16 md:h-16 text-primary animate-bounce" />
           </div>
           
-          <div className="space-y-4 md:space-y-6">
-            <h2 className="text-2xl md:text-5xl font-bold text-gray-700">
+          <div className="space-y-6">
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-700">
               Coming Soon
             </h2>
-            <p className="text-base md:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Your platform for connecting with fellow students, collaborating on projects, 
               and building your academic portfolio together.
             </p>
           </div>
 
-          <div className="pt-4 md:pt-8">
+          <div className="pt-8">
             <Button 
               size="lg" 
-              className="bg-primary hover:bg-primary/90 text-white px-6 md:px-8 py-4 md:py-6 text-base md:text-lg"
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg"
             >
               Get Notified
             </Button>
