@@ -126,9 +126,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
+      // Clear user and profile state
+      setUser(null);
+      setProfile(null);
+      
       toast.success("Successfully signed out!");
       navigate("/");
     } catch (error: any) {
+      console.error("Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
       throw error;
     }
