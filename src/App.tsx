@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
 import PostProject from "./pages/PostProject";
 import ComingSoon from "./pages/ComingSoon";
@@ -24,6 +25,7 @@ const App = () => {
       <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
+            <Navbar />
             <Routes>
               <Route path="/" element={<ComingSoon />} />
               <Route path="/home" element={<Index />} />
