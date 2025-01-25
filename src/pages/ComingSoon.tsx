@@ -4,6 +4,12 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const ComingSoon = () => {
   const [email, setEmail] = useState("");
@@ -48,6 +54,17 @@ const ComingSoon = () => {
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
         </div>
+
+        <Accordion type="single" collapsible className="w-full bg-white/80 rounded-lg p-4">
+          <AccordionItem value="what-is-campus-connect" className="border-none">
+            <AccordionTrigger className="text-lg font-semibold text-gray-900">
+              What is Campus Connect?
+            </AccordionTrigger>
+            <AccordionContent className="text-left text-gray-600 leading-relaxed">
+              Campus Connect is a one-of-a-kind platform that connects students like never before. It breaks down barriers by allowing students to collaborate across majors, outsource tasks, and showcase their talents all within their own campus community. Whether it's a business student needing a website built, an international student offering graphic design services, or a team working on a startup idea, Campus Connect brings peers together to create opportunities that would otherwise be out of reach. With its portfolio feature, students can prove their abilities and show what they're capable of, leveling the playing field and fostering innovation in a way no other platform can.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <div className="h-1 w-20 bg-gradient-to-r from-primary via-blue-600 to-purple-600 mx-auto rounded-full" />
 
