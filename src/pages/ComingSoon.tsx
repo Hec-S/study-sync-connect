@@ -1,16 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { toast } from "sonner";
 
 const ComingSoon = () => {
   const [email, setEmail] = useState("");
+  const [interest, setInterest] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
       toast.success("Thank you for subscribing! We'll keep you updated.");
       setEmail("");
+      setInterest("");
     }
   };
 
@@ -40,6 +43,17 @@ const ComingSoon = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"
             />
+            <Select value={interest} onValueChange={setInterest}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="What interests you most?" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="projects">Finding Projects</SelectItem>
+                <SelectItem value="collaboration">Team Collaboration</SelectItem>
+                <SelectItem value="networking">Professional Networking</SelectItem>
+                <SelectItem value="learning">Learning Opportunities</SelectItem>
+              </SelectContent>
+            </Select>
             <Button type="submit" className="w-full">
               Notify Me
             </Button>
