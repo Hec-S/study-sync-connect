@@ -14,10 +14,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("[AuthContext] Initializing auth state...");
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("[AuthContext] Initial session check:", session ? "Session found" : "No session");
       setUser(session?.user ?? null);
       if (session?.user) {
+        console.log("[AuthContext] Fetching initial profile for user:", session.user.id);
         fetchProfile(session.user.id).then(setProfile);
       }
       setIsLoading(false);
@@ -27,15 +30,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
+      console.log("[AuthContext] Auth state changed:", event, "Session:", session ? "Present" : "None");
       setUser(session?.user ?? null);
       if (session?.user) {
+        console.log("[AuthContext] Fetching profile after auth change for user:", session.user.id);
         const profile = await fetchProfile(session.user.id);
         setProfile(profile);
       } else {
+        console.log("[AuthContext] Clearing profile data");
         setProfile(null);
         // Only navigate on sign out
         if (event === 'SIGNED_OUT') {
+          console.log("[AuthContext] Sign out detected, navigating to home");
           navigate("/");
         }
       }
@@ -43,17 +49,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
+      console.log("[AuthContext] Cleaning up auth subscriptions");
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log("[AuthContext] Attempting sign in for email:", email);
       await handleSignIn(email, password);
       const redirectPath = localStorage.getItem("redirectPath") || "/";
       localStorage.removeItem("redirectPath");
       navigate(redirectPath);
     } catch (error: any) {
+      console.error("[AuthContext] Sign in error:", error);
       toast.error(error.message || "Failed to sign in");
       throw error;
     }
@@ -65,8 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     major: string;
   }) => {
     try {
+      console.log("[AuthContext] Attempting sign up for email:", email);
       await handleSignUp(email, password, metadata);
     } catch (error: any) {
+      console.error("[AuthContext] Sign up error:", error);
       toast.error(error.message || "Failed to sign up");
       throw error;
     }
@@ -74,11 +85,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      console.log("Starting sign out process...");
+      console.log("[AuthContext] Starting sign out process...");
       await handleSignOut();
-      // Remove navigation from here - let the auth state change handler handle it
+      console.log("[AuthContext] Sign out completed successfully");
     } catch (error: any) {
-      console.error("Sign out error:", error);
+      console.error("[AuthContext] Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
       throw error;
     }
