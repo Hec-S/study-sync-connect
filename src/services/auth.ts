@@ -33,8 +33,17 @@ export const handleSignIn = async (email: string, password: string) => {
 
   if (error) {
     console.error("[AuthService] Sign in error:", error);
-    throw error;
+    let errorMessage = "Failed to sign in";
+    
+    if (error.message.includes("Invalid login credentials")) {
+      errorMessage = "Invalid email or password";
+    } else if (error.message.includes("Email not confirmed")) {
+      errorMessage = "Please verify your email before signing in";
+    }
+    
+    throw new Error(errorMessage);
   }
+  
   console.log("[AuthService] Sign in successful");
   toast.success("Successfully signed in!");
 };
@@ -59,8 +68,15 @@ export const handleSignUp = async (
 
   if (error) {
     console.error("[AuthService] Sign up error:", error);
-    throw error;
+    let errorMessage = "Failed to sign up";
+    
+    if (error.message.includes("already registered")) {
+      errorMessage = "This email is already registered";
+    }
+    
+    throw new Error(errorMessage);
   }
+  
   console.log("[AuthService] Sign up successful");
   toast.success("Successfully signed up! Please check your email for verification.");
 };

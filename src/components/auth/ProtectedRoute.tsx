@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
@@ -10,6 +11,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (!isLoading && !user) {
+      console.log("[ProtectedRoute] No authenticated user found, redirecting to home");
       // Save the attempted path
       localStorage.setItem("redirectPath", location.pathname);
       toast.error("Please sign in to access this page");
@@ -18,7 +20,11 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [user, isLoading, navigate, location]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return user ? <>{children}</> : null;

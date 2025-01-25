@@ -32,10 +32,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[AuthContext] Auth state changed:", event, "Session:", session ? "Present" : "None");
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         console.log("[AuthContext] Fetching profile after auth change for user:", session.user.id);
         const profile = await fetchProfile(session.user.id);
         setProfile(profile);
+        
+        // Handle redirect after sign in
+        const redirectPath = localStorage.getItem("redirectPath");
+        if (redirectPath && event === 'SIGNED_IN') {
+          console.log("[AuthContext] Redirecting to:", redirectPath);
+          localStorage.removeItem("redirectPath");
+          navigate(redirectPath);
+        }
       } else {
         console.log("[AuthContext] Clearing profile data");
         setProfile(null);
@@ -76,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("[AuthContext] Attempting sign up for email:", email);
       await handleSignUp(email, password, metadata);
+      toast.success("Please check your email to verify your account!");
     } catch (error: any) {
       console.error("[AuthContext] Sign up error:", error);
       toast.error(error.message || "Failed to sign up");
