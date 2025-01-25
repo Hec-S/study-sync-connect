@@ -25,14 +25,22 @@ const App = () => {
       <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
-            <Navbar />
             <Routes>
               <Route path="/" element={<ComingSoon />} />
-              <Route path="/home" element={<Index />} />
+              <Route 
+                path="/home" 
+                element={
+                  <>
+                    <Navbar />
+                    <Index />
+                  </>
+                } 
+              />
               <Route
                 path="/create-project"
                 element={
                   <ProtectedRoute>
+                    <Navbar />
                     <PostProject />
                   </ProtectedRoute>
                 }
@@ -41,6 +49,7 @@ const App = () => {
                 path="/portfolio"
                 element={
                   <ProtectedRoute>
+                    <Navbar />
                     <Index />
                   </ProtectedRoute>
                 }
