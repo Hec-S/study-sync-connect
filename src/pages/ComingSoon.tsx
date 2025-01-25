@@ -20,12 +20,12 @@ const ComingSoon = () => {
       <div className="max-w-md w-full p-4 sm:p-6 space-y-6 sm:space-y-8 text-center animate-fadeIn">
         <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent max-w-[12ch]">
               Campus Connect
             </h1>
             <GraduationCap className="w-6 h-6 sm:w-8 sm:h-8 md:w-12 md:h-12 text-primary animate-bounce" />
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 max-w-[12ch] mx-auto">
             Coming Soon
           </h2>
           <p className="text-base sm:text-lg text-gray-600">
