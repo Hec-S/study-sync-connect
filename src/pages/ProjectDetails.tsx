@@ -14,7 +14,7 @@ const ProjectDetails = () => {
         .from("projects")
         .select(`
           *,
-          profiles:owner_id (
+          profiles (
             full_name,
             school_name,
             major
