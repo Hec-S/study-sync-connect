@@ -21,7 +21,13 @@ const ProjectDetails = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('*, profiles(full_name, school_name)')
+        .select(`
+          *,
+          owner:owner_id (
+            full_name,
+            school_name
+          )
+        `)
         .eq('id', id)
         .single();
 
@@ -120,9 +126,9 @@ const ProjectDetails = () => {
                 <span>Due: {new Date(project.deadline).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-600">
-                <span>Posted by: {project.profiles?.full_name || 'Anonymous'}</span>
-                {project.profiles?.school_name && (
-                  <span className="text-gray-400">• {project.profiles.school_name}</span>
+                <span>Posted by: {project.owner?.full_name || 'Anonymous'}</span>
+                {project.owner?.school_name && (
+                  <span className="text-gray-400">• {project.owner.school_name}</span>
                 )}
               </div>
             </div>
