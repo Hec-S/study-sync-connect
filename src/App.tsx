@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import PostProject from "./pages/PostProject";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,6 +26,7 @@ const App = () => {
           <TooltipProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/InDev" element={<ComingSoon />} />
               <Route
                 path="/create-project"
                 element={
