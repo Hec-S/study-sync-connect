@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Project {
-  id: string; // Add this
   title: string;
   description: string;
   category: string;
@@ -13,7 +12,6 @@ interface Project {
 
 const SAMPLE_PROJECTS: Project[] = [
   {
-    id: "1", // Add ids to all sample projects
     title: "Mobile App UI Design",
     description: "Looking for a UI/UX designer to help create mockups for a new campus events app. Need someone with experience in mobile design patterns and user research.",
     category: "Design",
@@ -21,7 +19,6 @@ const SAMPLE_PROJECTS: Project[] = [
     skills: ["Figma", "UI Design", "Mobile Design"],
   },
   {
-    id: "2",
     title: "Database Project Help",
     description: "Need assistance with designing and implementing a PostgreSQL database for a web application. Looking for someone with strong SQL knowledge.",
     category: "Development",
@@ -29,7 +26,6 @@ const SAMPLE_PROJECTS: Project[] = [
     skills: ["SQL", "Database Design", "PostgreSQL"],
   },
   {
-    id: "3",
     title: "Research Paper Review",
     description: "Seeking peer review for my research paper on renewable energy technologies. Background in environmental science or engineering preferred.",
     category: "Research",
@@ -37,7 +33,6 @@ const SAMPLE_PROJECTS: Project[] = [
     skills: ["Academic Writing", "Research", "Energy"],
   },
   {
-    id: "4",
     title: "Marketing Campaign",
     description: "Looking for creative minds to help plan a marketing campaign for our student organization. Experience with social media marketing is a plus.",
     category: "Marketing",
@@ -45,7 +40,6 @@ const SAMPLE_PROJECTS: Project[] = [
     skills: ["Social Media", "Content Creation", "Strategy"],
   },
   {
-    id: "5",
     title: "Machine Learning Project",
     description: "Seeking collaboration on a machine learning project focused on natural language processing. Python and TensorFlow experience required.",
     category: "Development",
@@ -53,7 +47,6 @@ const SAMPLE_PROJECTS: Project[] = [
     skills: ["Python", "Machine Learning", "NLP"],
   },
   {
-    id: "6",
     title: "Video Production",
     description: "Need help creating promotional videos for our student club. Looking for someone with video editing and motion graphics skills.",
     category: "Design",
@@ -100,8 +93,8 @@ export const ProjectGrid = () => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 opacity-100 transition-opacity duration-200">
-      {projects.map((project) => (
-        <ProjectCard key={project.id} {...project} />
+      {projects.map((project, index) => (
+        <ProjectCard key={index} {...project} />
       ))}
     </div>
   );
