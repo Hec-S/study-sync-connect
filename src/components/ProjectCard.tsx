@@ -3,12 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MessageSquare, ArrowRight, Bookmark } from "lucide-react";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectCardProps {
-  id: string;
   title: string;
   description: string;
   category: string;
@@ -16,7 +12,7 @@ interface ProjectCardProps {
   skills: string[];
 }
 
-export const getCategoryColor = (category: string): string => {
+const getCategoryColor = (category: string): string => {
   const colors: { [key: string]: string } = {
     Design: "bg-pink-100 text-pink-800 hover:bg-pink-200",
     Development: "bg-blue-100 text-blue-800 hover:bg-blue-200",
@@ -26,36 +22,11 @@ export const getCategoryColor = (category: string): string => {
   return colors[category] || "bg-gray-100 text-gray-800 hover:bg-gray-200";
 };
 
-export const ProjectCard = ({ id, title, description, category, deadline, skills }: ProjectCardProps) => {
+export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { user } = useAuth();
 
   const truncatedDescription = isExpanded ? description : description.slice(0, 100) + (description.length > 100 ? "..." : "");
-
-  const handleConnect = () => {
-    if (!user) {
-      toast({
-        title: "Sign in required",
-        description: "Please sign in to connect with project owners",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
-    toast({
-      title: "Connection request sent!",
-      description: `You've requested to connect for "${title}"`,
-    });
-    console.log("Connecting to project:", title);
-  };
-
-  const handleViewDetails = () => {
-    navigate(`/projects/${id}`);
-  };
 
   return (
     <Card className="group h-full flex flex-col justify-between w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
@@ -63,14 +34,9 @@ export const ProjectCard = ({ id, title, description, category, deadline, skills
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <button 
-                onClick={handleViewDetails}
-                className="text-left hover:opacity-80 transition-opacity"
-              >
-                <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                  {title}
-                </CardTitle>
-              </button>
+              <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                {title}
+              </CardTitle>
               <Badge 
                 variant="secondary" 
                 className={`mt-2 text-xs md:text-sm ${getCategoryColor(category)}`}
@@ -120,25 +86,14 @@ export const ProjectCard = ({ id, title, description, category, deadline, skills
           <Calendar className="w-3 h-3 md:w-4 md:h-4" />
           <span>Due: {deadline}</span>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="flex-1 sm:flex-none"
-            onClick={handleViewDetails}
-          >
-            View Details
-          </Button>
-          <Button 
-            size="sm" 
-            className="flex-1 sm:flex-none group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
-            onClick={handleConnect}
-          >
-            <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
-            <span>Connect</span>
-            <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
-          </Button>
-        </div>
+        <Button 
+          size="sm" 
+          className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
+        >
+          <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
+          <span>Connect</span>
+          <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
+        </Button>
       </CardFooter>
     </Card>
   );
