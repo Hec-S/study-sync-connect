@@ -97,8 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("[AuthContext] Starting sign out process...");
       await handleSignOut();
-      setUser(null);
-      setProfile(null);
       console.log("[AuthContext] Sign out completed successfully");
     } catch (error: any) {
       console.error("[AuthContext] Sign out error:", error);

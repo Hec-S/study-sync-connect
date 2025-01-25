@@ -26,7 +26,6 @@ export const Navbar = () => {
     e.preventDefault();
     try {
       await signOut();
-      setIsMenuOpen(false); // Close mobile menu after signing out
     } catch (error) {
       console.error("Error signing out:", error);
     }
