@@ -31,19 +31,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[AuthContext] Auth state changed:", event, "Session:", session ? "Present" : "None");
+      
+      if (event === 'SIGNED_OUT') {
+        console.log("[AuthContext] Sign out detected, clearing state and navigating");
+        setUser(null);
+        setProfile(null);
+        navigate("/");
+        return;
+      }
+
       setUser(session?.user ?? null);
       if (session?.user) {
         console.log("[AuthContext] Fetching profile after auth change for user:", session.user.id);
         const profile = await fetchProfile(session.user.id);
         setProfile(profile);
-      } else {
-        console.log("[AuthContext] Clearing profile data");
-        setProfile(null);
-        // Only navigate on sign out
-        if (event === 'SIGNED_OUT') {
-          console.log("[AuthContext] Sign out detected, navigating to home");
-          navigate("/");
-        }
       }
       setIsLoading(false);
     });
@@ -87,7 +88,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("[AuthContext] Starting sign out process...");
       await handleSignOut();
-      console.log("[AuthContext] Sign out completed successfully");
     } catch (error: any) {
       console.error("[AuthContext] Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
