@@ -34,6 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(profile);
       } else {
         setProfile(null);
+        // Only navigate on sign out
+        if (event === 'SIGNED_OUT') {
+          navigate("/");
+        }
       }
       setIsLoading(false);
     });
@@ -41,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -58,6 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, metadata: {
     full_name: string;
     school_name: string;
+    major: string;
   }) => {
     try {
       await handleSignUp(email, password, metadata);
@@ -71,10 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("Starting sign out process...");
       await handleSignOut();
-      setUser(null);
-      setProfile(null);
-      console.log("Navigating to home...");
-      navigate("/");
+      // Remove navigation from here - let the auth state change handler handle it
     } catch (error: any) {
       console.error("Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
