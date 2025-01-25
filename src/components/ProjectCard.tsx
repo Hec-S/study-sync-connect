@@ -49,8 +49,15 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
       title: "Connection request sent!",
       description: `You've requested to connect for "${title}"`,
     });
-    // In a real application, this would trigger a connection request
     console.log("Connecting to project:", title);
+  };
+
+  const handleTitleClick = () => {
+    // For now, we'll just show a toast. In a real app, this would navigate to the project details page
+    toast({
+      title: "Project Details",
+      description: "This would navigate to the project details page",
+    });
   };
 
   return (
@@ -59,9 +66,14 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
-                {title}
-              </CardTitle>
+              <button 
+                onClick={handleTitleClick}
+                className="text-left hover:opacity-80 transition-opacity"
+              >
+                <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
+                  {title}
+                </CardTitle>
+              </button>
               <Badge 
                 variant="secondary" 
                 className={`mt-2 text-xs md:text-sm ${getCategoryColor(category)}`}
