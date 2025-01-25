@@ -58,16 +58,18 @@ const ComingSoon = () => {
           </div>
         </div>
 
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="what-is-campus-connect" className="border rounded-xl bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
-            <AccordionTrigger className="px-6 py-4 text-lg font-semibold text-gray-900 hover:text-primary transition-colors">
-              What is Campus Connect?
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-6 text-gray-600 leading-relaxed text-base sm:text-lg">
-              Campus Connect is a one-of-a-kind platform that connects students like never before. It breaks down barriers by allowing students to collaborate across majors, outsource tasks, and showcase their talents all within their own campus community. Whether it's a business student needing a website built, an international student offering graphic design services, or a team working on a startup idea, Campus Connect brings peers together to create opportunities that would otherwise be out of reach. With its portfolio feature, students can prove their abilities and show what they're capable of, leveling the playing field and fostering innovation in a way no other platform can.
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <div className="w-full max-w-2xl mx-auto">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="what-is-campus-connect" className="border rounded-xl bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+              <AccordionTrigger className="px-6 py-4 text-lg font-semibold text-gray-900 hover:text-primary transition-colors text-center">
+                What is Campus Connect?
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 text-gray-600 leading-relaxed text-base sm:text-lg text-center">
+                Campus Connect is a one-of-a-kind platform that connects students like never before. It breaks down barriers by allowing students to collaborate across majors, outsource tasks, and showcase their talents all within their own campus community. Whether it's a business student needing a website built, an international student offering graphic design services, or a team working on a startup idea, Campus Connect brings peers together to create opportunities that would otherwise be out of reach. With its portfolio feature, students can prove their abilities and show what they're capable of, leveling the playing field and fostering innovation in a way no other platform can.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
 
         <div className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
@@ -87,7 +89,7 @@ const ComingSoon = () => {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 text-base sm:text-lg bg-white/80 backdrop-blur-sm border-gray-200 focus:border-primary/50 focus:ring-primary/50 transition-all duration-300"
+              className="h-12 text-base sm:text-lg bg-white/80 backdrop-blur-sm border-gray-200 focus:border-primary/50 focus:ring-primary/50 transition-all duration-300 text-center"
               disabled={isSubmitting}
             />
             <Button 
