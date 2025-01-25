@@ -15,9 +15,7 @@ export const Navbar = () => {
   const handlePostProject = () => {
     if (!user) {
       toast.error("Please sign in to post a project");
-      // Save the attempted path
       localStorage.setItem("redirectPath", "/create-project");
-      // Show auth dialog
       setShowAuthDialog(true);
       return;
     }
@@ -28,7 +26,7 @@ export const Navbar = () => {
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+          <Link to="/" className="text-xl md:text-2xl font-bold text-primary">
             Campus Connect
           </Link>
           
