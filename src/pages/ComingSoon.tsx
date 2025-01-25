@@ -29,7 +29,7 @@ const ComingSoon = () => {
             Coming Soon
           </h2>
           <p className="text-base sm:text-lg text-gray-600 max-w-sm mx-auto">
-            We're working hard to bring you something amazing. Stay tuned!
+            Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
         </div>
 
