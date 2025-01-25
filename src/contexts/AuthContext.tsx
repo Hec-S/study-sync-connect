@@ -7,7 +7,7 @@ import { fetchProfile, handleSignIn, handleSignUp, handleSignOut } from "@/servi
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthContextType["user"]>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);
