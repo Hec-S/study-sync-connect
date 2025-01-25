@@ -36,7 +36,7 @@ const ComingSoon = () => {
       <div className="max-w-md w-full p-4 sm:p-6 space-y-6 sm:space-y-8 text-center animate-fadeIn">
         <div className="space-y-3 sm:space-y-4">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-primary via-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-none">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-primary tracking-tight leading-none">
               Campus Connect
             </h1>
             <GraduationCap className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary animate-bounce" />
@@ -49,7 +49,7 @@ const ComingSoon = () => {
           </p>
         </div>
 
-        <div className="h-1 w-20 bg-gradient-to-r from-primary via-blue-600 to-purple-600 mx-auto rounded-full" />
+        <div className="h-1 w-20 bg-primary mx-auto rounded-full" />
 
         <div className="space-y-3 sm:space-y-4">
           <p className="text-xs sm:text-sm text-gray-500">
