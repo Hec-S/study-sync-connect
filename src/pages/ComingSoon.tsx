@@ -3,15 +3,31 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { GraduationCap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const ComingSoon = () => {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    try {
+      setIsSubmitting(true);
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email }]);
+
+      if (error) throw error;
+
       toast.success("Thank you for subscribing! We'll keep you updated.");
       setEmail("");
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -46,9 +62,14 @@ const ComingSoon = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"
+              disabled={isSubmitting}
             />
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-              Notify Me
+            <Button 
+              type="submit" 
+              className="w-full bg-primary hover:bg-primary/90"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Subscribing..." : "Notify Me"}
             </Button>
           </form>
         </div>
