@@ -83,18 +83,12 @@ export const handleSignUp = async (
 
 export const handleSignOut = async () => {
   console.log("[AuthService] Starting Supabase sign out...");
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("[AuthService] Sign out error:", error);
-      throw error;
-    }
-    // Clear any local storage items related to auth
-    localStorage.removeItem("redirectPath");
-    console.log("[AuthService] Sign out successful, local storage cleaned");
-    toast.success("Successfully signed out!");
-  } catch (error) {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
     console.error("[AuthService] Sign out error:", error);
     throw error;
   }
+  localStorage.removeItem("redirectPath");
+  console.log("[AuthService] Sign out successful, local storage cleaned");
+  toast.success("Successfully signed out!");
 };
