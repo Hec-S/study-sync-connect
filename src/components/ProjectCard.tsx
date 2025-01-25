@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectCardProps {
+  id: string;
   title: string;
   description: string;
   category: string;
@@ -15,7 +16,7 @@ interface ProjectCardProps {
   skills: string[];
 }
 
-const getCategoryColor = (category: string): string => {
+export const getCategoryColor = (category: string): string => {
   const colors: { [key: string]: string } = {
     Design: "bg-pink-100 text-pink-800 hover:bg-pink-200",
     Development: "bg-blue-100 text-blue-800 hover:bg-blue-200",
@@ -25,7 +26,7 @@ const getCategoryColor = (category: string): string => {
   return colors[category] || "bg-gray-100 text-gray-800 hover:bg-gray-200";
 };
 
-export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
+export const ProjectCard = ({ id, title, description, category, deadline, skills }: ProjectCardProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
@@ -52,12 +53,8 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
     console.log("Connecting to project:", title);
   };
 
-  const handleTitleClick = () => {
-    // For now, we'll just show a toast. In a real app, this would navigate to the project details page
-    toast({
-      title: "Project Details",
-      description: "This would navigate to the project details page",
-    });
+  const handleViewDetails = () => {
+    navigate(`/projects/${id}`);
   };
 
   return (
@@ -67,7 +64,7 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
           <div className="flex items-start justify-between">
             <div>
               <button 
-                onClick={handleTitleClick}
+                onClick={handleViewDetails}
                 className="text-left hover:opacity-80 transition-opacity"
               >
                 <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
@@ -123,15 +120,25 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
           <Calendar className="w-3 h-3 md:w-4 md:h-4" />
           <span>Due: {deadline}</span>
         </div>
-        <Button 
-          size="sm" 
-          className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
-          onClick={handleConnect}
-        >
-          <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
-          <span>Connect</span>
-          <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={handleViewDetails}
+          >
+            View Details
+          </Button>
+          <Button 
+            size="sm" 
+            className="flex-1 sm:flex-none group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
+            onClick={handleConnect}
+          >
+            <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
+            <span>Connect</span>
+            <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
