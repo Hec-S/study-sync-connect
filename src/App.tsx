@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import PostProject from "./pages/PostProject";
 import ComingSoon from "./pages/ComingSoon";
-import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,7 +39,7 @@ const App = () => {
                 path="/portfolio"
                 element={
                   <ProtectedRoute>
-                    <PortfolioPage />
+                    <Portfolio />
                   </ProtectedRoute>
                 }
               />
