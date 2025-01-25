@@ -9,6 +9,11 @@ export type Project = {
     skills: string[];
     title: string;
     updated_at: string;
+    profiles?: {
+      full_name: string | null;
+      school_name: string | null;
+      major: string | null;
+    } | null;
   };
   Insert: {
     category: string;
