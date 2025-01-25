@@ -14,7 +14,7 @@ const ProjectDetails = () => {
         .from("projects")
         .select(`
           *,
-          profiles (
+          owner: profiles!projects_owner_id_fkey (
             full_name,
             school_name,
             major
@@ -64,12 +64,12 @@ const ProjectDetails = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
-          <p className="text-gray-600 mb-6">Posted by {project.profiles.full_name}</p>
+          <p className="text-gray-600 mb-6">Posted by {project.owner.full_name}</p>
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <p className="text-gray-800 whitespace-pre-wrap">{project.description}</p>
           </div>
           <div className="text-sm text-gray-600">
-            <p>School: {project.profiles.school_name}</p>
+            <p>School: {project.owner.school_name}</p>
             <p>Category: {project.category}</p>
             <p>Deadline: {new Date(project.deadline).toLocaleDateString()}</p>
           </div>
