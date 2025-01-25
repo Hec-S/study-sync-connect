@@ -4,19 +4,14 @@ import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fetchProfile } from "@/services/auth";
-
-interface AuthContextType {
-  user: User | null;
-  profile: any | null;
-  signOut: () => Promise<void>;
-}
+import { AuthContextType, UserProfile } from "@/types/auth";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
@@ -48,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .then(userProfile => setProfile(userProfile))
           .catch(error => console.error("[AuthContext] Error fetching initial profile:", error));
       }
-      setLoading(false);
+      setIsLoading(false);
     });
 
     // Set up auth state change listener
@@ -61,6 +56,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       subscription.unsubscribe();
     };
   }, []);
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      toast.success("Successfully signed in!");
+    } catch (error: any) {
+      console.error("[AuthContext] Sign in error:", error);
+      throw error;
+    }
+  };
+
+  const signUp = async (
+    email: string,
+    password: string,
+    metadata: {
+      full_name: string;
+      school_name: string;
+      major: string;
+    }
+  ) => {
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: metadata,
+        },
+      });
+      if (error) throw error;
+      toast.success("Successfully signed up! Please check your email for verification.");
+    } catch (error: any) {
+      console.error("[AuthContext] Sign up error:", error);
+      throw error;
+    }
+  };
 
   const signOut = async () => {
     try {
@@ -84,15 +118,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <AuthContext.Provider
       value={{
         user,
         profile,
+        isLoading,
+        signIn,
+        signUp,
         signOut,
       }}
     >
