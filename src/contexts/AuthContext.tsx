@@ -96,8 +96,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       console.log("[AuthContext] Starting sign out process...");
-      await handleSignOut();
+      // Force clear all auth state first
+      setUser(null);
+      setProfile(null);
+      localStorage.removeItem("redirectPath");
+      
+      // Then sign out from Supabase
+      await supabase.auth.signOut({ scope: 'local' });
+      
       console.log("[AuthContext] Sign out completed successfully");
+      toast.success("Successfully signed out!");
+      navigate("/");
     } catch (error: any) {
       console.error("[AuthContext] Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
