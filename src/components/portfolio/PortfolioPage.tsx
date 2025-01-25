@@ -5,7 +5,7 @@ import { PortfolioItemDialog } from "./PortfolioItemDialog";
 import { Grid, List, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-export type PortfolioItem = {
+export interface PortfolioItem {
   id: string;
   title: string;
   description: string;
@@ -13,7 +13,7 @@ export type PortfolioItem = {
   links: string[];
   isPublic: boolean;
   files: string[];
-};
+}
 
 export const PortfolioPage = () => {
   const [isGridView, setIsGridView] = useState(true);
@@ -101,7 +101,7 @@ export const PortfolioPage = () => {
           <PortfolioGrid
             items={portfolioItems}
             isGridView={isGridView}
-            onUpdate={(updatedItems) => setPortfolioItems(updatedItems)}
+            onUpdate={setPortfolioItems}
           />
         )}
       </div>
