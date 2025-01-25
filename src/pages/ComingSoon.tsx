@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import { GraduationCap } from "lucide-react";
 
 const ComingSoon = () => {
   const [email, setEmail] = useState("");
@@ -18,14 +19,15 @@ const ComingSoon = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-blue-50">
       <div className="max-w-md w-full p-6 space-y-8 text-center animate-fadeIn">
         <div className="space-y-4">
-          <img 
-            src="/lovable-uploads/164d718f-6c5b-4fc9-be85-f5f530ba6ee0.png" 
-            alt="Campus Connect Logo" 
-            className="w-full max-w-lg mx-auto"
-          />
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Campus Connect
+            </h1>
+            <GraduationCap className="w-8 h-8 md:w-12 md:h-12 text-primary animate-bounce" />
+          </div>
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900">
             Coming Soon
-          </h1>
+          </h2>
           <p className="text-lg text-gray-600">
             We're working hard to bring you something amazing. Stay tuned!
           </p>
