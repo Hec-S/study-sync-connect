@@ -18,6 +18,11 @@ const ComingSoon = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-blue-50">
       <div className="max-w-md w-full p-6 space-y-8 text-center animate-fadeIn">
         <div className="space-y-4">
+          <img 
+            src="/lovable-uploads/164d718f-6c5b-4fc9-be85-f5f530ba6ee0.png" 
+            alt="Campus Connect Logo" 
+            className="w-full max-w-lg mx-auto"
+          />
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             Coming Soon
           </h1>
