@@ -22,6 +22,15 @@ export const Navbar = () => {
     navigate("/create-project");
   };
 
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -57,7 +66,7 @@ export const Navbar = () => {
                   <Button variant="outline" asChild>
                     <Link to="/portfolio">Portfolio</Link>
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={signOut}>
+                  <Button variant="ghost" size="icon" onClick={handleSignOut}>
                     <LogOut className="w-5 h-5" />
                   </Button>
                 </>
