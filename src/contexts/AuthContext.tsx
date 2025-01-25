@@ -29,24 +29,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else if (event === "SIGNED_OUT") {
       setUser(null);
       setProfile(null);
+      navigate("/");
     }
   };
 
   useEffect(() => {
     console.log("[AuthContext] Initializing auth state...");
     
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id)
-          .then(userProfile => setProfile(userProfile))
-          .catch(error => console.error("[AuthContext] Error fetching initial profile:", error));
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          const userProfile = await fetchProfile(session.user.id);
+          setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error("[AuthContext] Error initializing auth:", error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    });
+    };
 
-    // Set up auth state change listener
+    initializeAuth();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(handleAuthStateChange);
@@ -55,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("[AuthContext] Cleaning up auth subscriptions");
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -99,15 +105,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       console.log("[AuthContext] Starting sign out process...");
+      setIsLoading(true);
       
-      // Sign out from Supabase first
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      // Then clear local state
+      // Force clear local state first
       setUser(null);
       setProfile(null);
       localStorage.removeItem("redirectPath");
+      
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       
       console.log("[AuthContext] Sign out completed successfully");
       toast.success("Successfully signed out!");
@@ -115,6 +122,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error("[AuthContext] Sign out error:", error);
       toast.error(error.message || "Failed to sign out");
+    } finally {
+      setIsLoading(false);
     }
   };
 
