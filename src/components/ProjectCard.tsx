@@ -3,6 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MessageSquare, ArrowRight, Bookmark } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectCardProps {
   title: string;
@@ -25,8 +28,30 @@ const getCategoryColor = (category: string): string => {
 export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const truncatedDescription = isExpanded ? description : description.slice(0, 100) + (description.length > 100 ? "..." : "");
+
+  const handleConnect = () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to connect with project owners",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    toast({
+      title: "Connection request sent!",
+      description: `You've requested to connect for "${title}"`,
+    });
+    // In a real application, this would trigger a connection request
+    console.log("Connecting to project:", title);
+  };
 
   return (
     <Card className="group h-full flex flex-col justify-between w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
@@ -89,6 +114,7 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
         <Button 
           size="sm" 
           className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
+          onClick={handleConnect}
         >
           <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
           <span>Connect</span>
