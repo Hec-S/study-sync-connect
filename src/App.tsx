@@ -8,7 +8,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import PostProject from "./pages/PostProject";
 import ComingSoon from "./pages/ComingSoon";
-import ProjectDetails from "./pages/ProjectDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +27,6 @@ const App = () => {
             <Routes>
               <Route path="/" element={<ComingSoon />} />
               <Route path="/home" element={<Index />} />
-              <Route path="/project/:id" element={<ProjectDetails />} />
               <Route
                 path="/create-project"
                 element={

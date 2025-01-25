@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectCardProps {
-  id: string;
   title: string;
   description: string;
   category: string;
@@ -26,7 +25,7 @@ const getCategoryColor = (category: string): string => {
   return colors[category] || "bg-gray-100 text-gray-800 hover:bg-gray-200";
 };
 
-export const ProjectCard = ({ id, title, description, category, deadline, skills }: ProjectCardProps) => {
+export const ProjectCard = ({ title, description, category, deadline, skills }: ProjectCardProps) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const { toast } = useToast();
@@ -50,10 +49,15 @@ export const ProjectCard = ({ id, title, description, category, deadline, skills
       title: "Connection request sent!",
       description: `You've requested to connect for "${title}"`,
     });
+    console.log("Connecting to project:", title);
   };
 
   const handleTitleClick = () => {
-    navigate(`/project/${id}`);
+    // For now, we'll just show a toast. In a real app, this would navigate to the project details page
+    toast({
+      title: "Project Details",
+      description: "This would navigate to the project details page",
+    });
   };
 
   return (
