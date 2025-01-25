@@ -22,12 +22,14 @@ export const Navbar = () => {
     navigate("/create-project");
   };
 
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleSignOut = async () => {
     try {
+      setIsMenuOpen(false); // Close mobile menu if open
       await signOut();
+      navigate("/"); // Ensure we navigate to home after sign out
     } catch (error) {
       console.error("Error signing out:", error);
+      toast.error("Failed to sign out. Please try again.");
     }
   };
 
@@ -66,8 +68,13 @@ export const Navbar = () => {
                   <Button variant="outline" asChild>
                     <Link to="/portfolio">Portfolio</Link>
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={handleSignOut}>
-                    <LogOut className="w-5 h-5" />
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={handleSignOut}
+                    className="hover:bg-red-50"
+                  >
+                    <LogOut className="w-5 h-5 text-red-500" />
                   </Button>
                 </>
               ) : (
