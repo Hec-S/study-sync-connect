@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoadingProjectGrid = () => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -35,6 +36,21 @@ const LoadingPortfolio = () => (
 );
 
 const Index = () => {
+  const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    console.log("[Index] Rendering Index page", { user, isLoading });
+  }, [user, isLoading]);
+
+  if (isLoading) {
+    console.log("[Index] Still loading auth state...");
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
