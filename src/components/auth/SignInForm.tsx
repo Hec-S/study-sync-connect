@@ -1,3 +1,7 @@
-export const SignInForm = () => {
+interface SignInFormProps {
+  onClose: () => void;
+}
+
+export const SignInForm = ({ onClose }: SignInFormProps) => {
   return null;
 };
