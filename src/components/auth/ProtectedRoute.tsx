@@ -18,6 +18,15 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       localStorage.setItem("redirectPath", location.pathname);
       toast.error("Please sign in to access this page");
       navigate("/");
+    } else if (!isLoading && user) {
+      console.log("[ProtectedRoute] User authenticated, allowing access");
+      // Check if there's a saved redirect path
+      const savedPath = localStorage.getItem("redirectPath");
+      if (savedPath && savedPath !== location.pathname) {
+        console.log("[ProtectedRoute] Redirecting to saved path:", savedPath);
+        localStorage.removeItem("redirectPath");
+        navigate(savedPath);
+      }
     }
   }, [user, isLoading, navigate, location]);
 
