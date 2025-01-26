@@ -1,56 +1,11 @@
-import React, { Suspense, useEffect } from "react";
+import React from "react";
 import { Navbar } from "@/components/Navbar";
 import { ProjectGrid } from "@/components/ProjectGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
-import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useAuth } from "@/contexts/AuthContext";
-
-const LoadingProjectGrid = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-    {[1, 2, 3, 4, 5, 6].map((i) => (
-      <div key={i} className="space-y-4 p-6 border rounded-lg bg-white/50">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-20 w-full" />
-        <div className="flex gap-2">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-6 w-20" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-const LoadingPortfolio = () => (
-  <div className="space-y-4">
-    <Skeleton className="h-8 w-48" />
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {[1, 2, 3, 4].map((i) => (
-        <Skeleton key={i} className="h-40 w-full" />
-      ))}
-    </div>
-  </div>
-);
 
 const Index = () => {
-  const { user, isLoading } = useAuth();
-
-  useEffect(() => {
-    console.log("[Index] Rendering Index page", { user, isLoading });
-  }, [user, isLoading]);
-
-  if (isLoading) {
-    console.log("[Index] Still loading auth state...");
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
@@ -126,24 +81,7 @@ const Index = () => {
               View All
             </Button>
           </div>
-          <Suspense fallback={<LoadingProjectGrid />}>
-            <ProjectGrid />
-          </Suspense>
-        </section>
-
-        {/* Portfolio Section */}
-        <section className="bg-white rounded-2xl shadow-sm p-8">
-          <div className="mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              Portfolio
-            </h2>
-            <p className="text-gray-600">
-              Showcase your work and connect with potential collaborators
-            </p>
-          </div>
-          <Suspense fallback={<LoadingPortfolio />}>
-            <PortfolioPage />
-          </Suspense>
+          <ProjectGrid />
         </section>
       </main>
     </div>
