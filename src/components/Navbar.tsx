@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Search, Bell, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
@@ -10,23 +10,19 @@ export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
 
   const handlePostProject = () => {
     if (!user) {
       toast.error("Please sign in to post a project");
-      localStorage.setItem("redirectPath", "/create-project");
       setShowAuthDialog(true);
       return;
     }
-    navigate("/create-project");
+    window.location.href = "/create-project";
   };
 
-  const handleSignOut = async (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleSignOut = async () => {
     try {
       await signOut();
-      navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
       toast.error("Failed to sign out");
@@ -50,7 +46,7 @@ export const Navbar = () => {
             </Button>
             
             <div className={`fixed inset-0 bg-white/95 md:bg-transparent md:static md:flex items-center gap-2 transition-all duration-300 ${isMenuOpen ? 'flex flex-col pt-20' : 'hidden'}`}>
-              {user && (
+              {user ? (
                 <>
                   <Button variant="ghost" size="icon" className="relative" asChild>
                     <Link to="/notifications">
@@ -73,9 +69,7 @@ export const Navbar = () => {
                     <LogOut className="w-5 h-5" />
                   </Button>
                 </>
-              )}
-
-              {!user && (
+              ) : (
                 <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
               )}
 
