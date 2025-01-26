@@ -2,32 +2,47 @@ import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
+
+export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  console.log("[ProtectedRoute] Current auth state:", { user, isLoading });
+
   useEffect(() => {
-    console.log("[ProtectedRoute] Current auth state:", { user, isLoading });
-    
     if (!isLoading && !user) {
       console.log("[ProtectedRoute] No authenticated user found, redirecting to home");
       localStorage.setItem("redirectPath", location.pathname);
       toast.error("Please sign in to access this page");
       navigate("/");
+    } else if (!isLoading && user) {
+      console.log("[ProtectedRoute] User authenticated, allowing access");
+      const savedPath = localStorage.getItem("redirectPath");
+      if (savedPath) {
+        console.log("[ProtectedRoute] Found saved path:", savedPath);
+        localStorage.removeItem("redirectPath");
+        if (savedPath !== location.pathname) {
+          console.log("[ProtectedRoute] Navigating to saved path");
+          navigate(savedPath);
+        }
+      }
     }
   }, [user, isLoading, navigate, location]);
 
   if (isLoading) {
+    console.log("[ProtectedRoute] Still loading auth state...");
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
 
-  // If we have a user and we're not loading, render the protected content
+  console.log("[ProtectedRoute] Rendering protected content:", !!user);
   return user ? children : null;
 };
