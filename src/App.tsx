@@ -26,8 +26,8 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <Routes>
-              <Route path="/" element={<ComingSoon />} />
-              <Route path="/home" element={<Index />} />
+              <Route path="/" element={<Index />} />
+              <Route path="/coming-soon" element={<ComingSoon />} />
               <Route
                 path="/create-project"
                 element={
