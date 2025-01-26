@@ -7,7 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import PostProject from "./pages/PostProject";
-import ComingSoon from "./pages/ComingSoon";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 
 const queryClient = new QueryClient({
@@ -26,8 +25,7 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <Routes>
-              <Route path="/" element={<ComingSoon />} />
-              <Route path="/home" element={<Index />} />
+              <Route path="/" element={<Index />} />
               <Route
                 path="/create-project"
                 element={
