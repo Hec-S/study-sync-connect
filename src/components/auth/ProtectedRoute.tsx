@@ -12,19 +12,20 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log("[ProtectedRoute] Current auth state:", { user, isLoading });
+  console.log("[ProtectedRoute] Auth state:", { user, isLoading });
 
   useEffect(() => {
     if (!isLoading && !user) {
-      console.log("[ProtectedRoute] No authenticated user found, redirecting to home");
+      console.log("[ProtectedRoute] No authenticated user, redirecting to home");
       localStorage.setItem("redirectPath", location.pathname);
       toast.error("Please sign in to access this page");
       navigate("/");
     }
   }, [user, isLoading, navigate, location]);
 
+  // Show loading state while checking auth
   if (isLoading) {
-    console.log("[ProtectedRoute] Still loading auth state...");
+    console.log("[ProtectedRoute] Loading auth state...");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -32,6 +33,6 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  console.log("[ProtectedRoute] Rendering protected content:", !!user);
+  // Only render children if user is authenticated
   return user ? children : null;
 };
