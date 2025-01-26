@@ -26,6 +26,10 @@ export const Navbar = () => {
                 </Link>
               </Button>
 
+              <Button variant="ghost" size="icon">
+                <Bell className="w-5 h-5" />
+              </Button>
+
               <Button variant="outline" asChild>
                 <Link to="/portfolio">Portfolio</Link>
               </Button>
