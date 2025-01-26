@@ -5,46 +5,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
-import { PortfolioItem } from "./PortfolioPage";
+import { MarketplaceProject } from "./MarketplacePage";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface PortfolioItemDialogProps {
+interface MarketplaceProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Omit<PortfolioItem, "id" | "created_at" | "updated_at" | "owner_id">) => void;
-  initialData?: PortfolioItem;
+  onSubmit: (data: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status" | "assigned_to">) => void;
+  initialData?: MarketplaceProject;
 }
 
-export const PortfolioItemDialog = ({
+export const MarketplaceProjectDialog = ({
   open,
   onOpenChange,
   onSubmit,
   initialData,
-}: PortfolioItemDialogProps) => {
+}: MarketplaceProjectDialogProps) => {
   const { register, handleSubmit, watch, setValue } = useForm({
     defaultValues: {
       title: initialData?.title || "",
       description: initialData?.description || "",
       category: initialData?.category || "development",
-      completion_date: initialData?.completion_date?.split('T')[0] || "",
-      skills: initialData?.skills || [""],
-      image_url: initialData?.image_url || "",
-      project_url: initialData?.project_url || "",
+      budget_range: initialData?.budget_range || "$100-$500",
+      required_skills: initialData?.required_skills || [""],
+      deadline: initialData?.deadline?.split('T')[0] || "",
     },
   });
 
-  const skills = watch("skills");
+  const required_skills = watch("required_skills");
 
   const addSkill = () => {
-    setValue("skills", [...skills, ""]);
+    setValue("required_skills", [...required_skills, ""]);
   };
 
   const removeSkill = (indexToRemove: number) => {
     setValue(
-      "skills",
-      skills.filter((_, index) => index !== indexToRemove)
+      "required_skills",
+      required_skills.filter((_, index) => index !== indexToRemove)
     );
   };
 
@@ -57,15 +56,23 @@ export const PortfolioItemDialog = ({
     "other",
   ];
 
+  const budgetRanges = [
+    "$100-$500",
+    "$500-$1000",
+    "$1000-$2500",
+    "$2500-$5000",
+    "$5000+",
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Portfolio Item" : "Add Portfolio Item"}</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Project" : "Post a New Project"}</DialogTitle>
           <DialogDescription>
             {initialData
-              ? "Make changes to your portfolio item here."
-              : "Add a new project to showcase in your portfolio."}
+              ? "Make changes to your project posting here."
+              : "Fill in the details about your project to find the right person."}
           </DialogDescription>
         </DialogHeader>
 
@@ -75,7 +82,7 @@ export const PortfolioItemDialog = ({
               <Label htmlFor="title">Project Title</Label>
               <Input
                 id="title"
-                placeholder="Enter project title"
+                placeholder="Enter a clear title"
                 {...register("title", { required: true })}
               />
             </div>
@@ -84,7 +91,7 @@ export const PortfolioItemDialog = ({
               <Label htmlFor="description">Project Description</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your project and its impact"
+                placeholder="Describe your project requirements and goals"
                 className="h-32"
                 {...register("description", { required: true })}
               />
@@ -110,37 +117,36 @@ export const PortfolioItemDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="completion_date">Completion Date</Label>
+              <Label htmlFor="budget_range">Budget Range</Label>
+              <Select
+                onValueChange={(value) => setValue("budget_range", value)}
+                defaultValue={initialData?.budget_range || "$100-$500"}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a budget range" />
+                </SelectTrigger>
+                <SelectContent>
+                  {budgetRanges.map((range) => (
+                    <SelectItem key={range} value={range}>
+                      {range}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="deadline">Project Deadline</Label>
               <Input
-                id="completion_date"
+                id="deadline"
                 type="date"
-                {...register("completion_date", { required: true })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image_url">Project Image URL (optional)</Label>
-              <Input
-                id="image_url"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                {...register("image_url")}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="project_url">Project URL (optional)</Label>
-              <Input
-                id="project_url"
-                type="url"
-                placeholder="https://example.com/project"
-                {...register("project_url")}
+                {...register("deadline", { required: true })}
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label>Skills Used</Label>
+                <Label>Required Skills</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -152,11 +158,11 @@ export const PortfolioItemDialog = ({
                 </Button>
               </div>
               <div className="space-y-2">
-                {skills.map((_, index) => (
+                {required_skills.map((_, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
-                      placeholder="Enter a skill"
-                      {...register(`skills.${index}` as const, { required: true })}
+                      placeholder="Enter a required skill"
+                      {...register(`required_skills.${index}` as const, { required: true })}
                       className={cn(index !== 0 && "mt-2")}
                     />
                     {index !== 0 && (
@@ -184,7 +190,7 @@ export const PortfolioItemDialog = ({
               Cancel
             </Button>
             <Button type="submit">
-              {initialData ? "Save Changes" : "Add to Portfolio"}
+              {initialData ? "Save Changes" : "Post Project"}
             </Button>
           </div>
         </form>

@@ -1,21 +1,23 @@
 import React from "react";
 import { PortfolioItem } from "./PortfolioPage";
 import { PortfolioCard } from "./PortfolioCard";
+import { User } from "@supabase/supabase-js";
 
 interface PortfolioGridProps {
   items: PortfolioItem[];
   isGridView: boolean;
-  onUpdate: (items: PortfolioItem[]) => void;
+  onUpdate: (id: string, item: Partial<PortfolioItem>) => void;
+  onDelete: (id: string) => void;
+  currentUser: User | null;
 }
 
-export const PortfolioGrid = ({ items, isGridView, onUpdate }: PortfolioGridProps) => {
-  const handleTogglePrivacy = (id: string) => {
-    const updatedItems = items.map((item) =>
-      item.id === id ? { ...item, isPublic: !item.isPublic } : item
-    );
-    onUpdate(updatedItems);
-  };
-
+export const PortfolioGrid = ({
+  items,
+  isGridView,
+  onUpdate,
+  onDelete,
+  currentUser,
+}: PortfolioGridProps) => {
   return (
     <div
       className={`grid gap-4 ${
@@ -29,7 +31,9 @@ export const PortfolioGrid = ({ items, isGridView, onUpdate }: PortfolioGridProp
           key={item.id}
           item={item}
           isGridView={isGridView}
-          onTogglePrivacy={() => handleTogglePrivacy(item.id)}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          currentUser={currentUser}
         />
       ))}
     </div>

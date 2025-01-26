@@ -5,49 +5,50 @@ import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { PortfolioItemDialog } from "./PortfolioItemDialog";
-import { PortfolioGrid } from "./PortfolioGrid";
+import { MarketplaceProjectDialog } from "./MarketplaceProjectDialog";
+import { MarketplaceProjectGrid } from "./MarketplaceProjectGrid";
 
-export type PortfolioItem = {
+export type MarketplaceProject = {
   id: string;
   title: string;
   description: string;
   category: string;
-  completion_date: string;
-  skills: string[];
+  budget_range: string;
+  required_skills: string[];
+  deadline: string;
+  status: "open" | "in_progress" | "completed" | "cancelled";
   owner_id: string;
-  image_url?: string;
-  project_url?: string;
+  assigned_to?: string;
   created_at: string;
   updated_at: string;
 };
 
-export const PortfolioPage = () => {
+export const MarketplacePage = () => {
   const [isGridView, setIsGridView] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [items, setItems] = useState<PortfolioItem[]>([]);
+  const [projects, setProjects] = useState<MarketplaceProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchItems();
+    fetchProjects();
   }, []);
 
-  const fetchItems = async () => {
+  const fetchProjects = async () => {
     try {
       const { data, error } = await supabase
-        .from('portfolio_items')
+        .from('marketplace_projects')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setItems(data || []);
+      setProjects(data || []);
     } catch (error) {
-      console.error('Error fetching portfolio items:', error);
+      console.error('Error fetching projects:', error);
       toast({
         title: "Error",
-        description: "Failed to load portfolio items",
+        description: "Failed to load projects",
         variant: "destructive",
       });
     } finally {
@@ -55,11 +56,11 @@ export const PortfolioPage = () => {
     }
   };
 
-  const handleAddItem = async (newItem: Omit<PortfolioItem, "id" | "created_at" | "updated_at" | "owner_id">) => {
+  const handleAddProject = async (newProject: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status" | "assigned_to">) => {
     if (!user) {
       toast({
         title: "Error",
-        description: "You must be logged in to add portfolio items",
+        description: "You must be logged in to post a project",
         variant: "destructive",
       });
       return;
@@ -67,79 +68,56 @@ export const PortfolioPage = () => {
 
     try {
       const { data, error } = await supabase
-        .from('portfolio_items')
+        .from('marketplace_projects')
         .insert([{
-          ...newItem,
+          ...newProject,
           owner_id: user.id,
+          status: 'open',
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      setItems((prev) => [data, ...prev]);
+      setProjects((prev) => [data, ...prev]);
       setIsDialogOpen(false);
       toast({
         title: "Success",
-        description: "Portfolio item added successfully",
+        description: "Project posted successfully",
       });
     } catch (error) {
-      console.error('Error adding portfolio item:', error);
+      console.error('Error adding project:', error);
       toast({
         title: "Error",
-        description: "Failed to add portfolio item",
+        description: "Failed to post project",
         variant: "destructive",
       });
     }
   };
 
-  const handleUpdateItem = async (id: string, updatedItem: Partial<PortfolioItem>) => {
+  const handleUpdateProject = async (id: string, updatedProject: Partial<MarketplaceProject>) => {
     try {
       const { data, error } = await supabase
-        .from('portfolio_items')
-        .update(updatedItem)
+        .from('marketplace_projects')
+        .update(updatedProject)
         .eq('id', id)
         .select()
         .single();
 
       if (error) throw error;
 
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...data } : item))
+      setProjects((prev) =>
+        prev.map((project) => (project.id === id ? { ...project, ...data } : project))
       );
       toast({
         title: "Success",
-        description: "Portfolio item updated successfully",
+        description: "Project updated successfully",
       });
     } catch (error) {
-      console.error('Error updating portfolio item:', error);
+      console.error('Error updating project:', error);
       toast({
         title: "Error",
-        description: "Failed to update portfolio item",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteItem = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('portfolio_items')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setItems((prev) => prev.filter((item) => item.id !== id));
-      toast({
-        title: "Success",
-        description: "Portfolio item deleted successfully",
-      });
-    } catch (error) {
-      console.error('Error deleting portfolio item:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete portfolio item",
+        description: "Failed to update project",
         variant: "destructive",
       });
     }
@@ -152,8 +130,8 @@ export const PortfolioPage = () => {
         <div className="flex flex-col gap-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">My Portfolio</h1>
-              <p className="text-muted-foreground">Showcase your completed projects</p>
+              <h1 className="text-2xl md:text-3xl font-bold">Project Marketplace</h1>
+              <p className="text-muted-foreground">Find projects or post your own</p>
             </div>
             <div className="flex items-center gap-2">
               <div className="border rounded-lg p-1 flex items-center gap-1">
@@ -176,7 +154,7 @@ export const PortfolioPage = () => {
               </div>
               <Button onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Project
+                Post Project
               </Button>
             </div>
           </div>
@@ -185,32 +163,31 @@ export const PortfolioPage = () => {
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
-          ) : items.length === 0 ? (
+          ) : projects.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-xl font-semibold mb-2">No Portfolio Items Yet</h2>
+              <h2 className="text-xl font-semibold mb-2">No Projects Yet</h2>
               <p className="text-muted-foreground mb-4">
-                Add your first project to showcase your work
+                Be the first to post a project
               </p>
               <Button onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Project
+                Post Your Project
               </Button>
             </div>
           ) : (
-            <PortfolioGrid
-              items={items}
+            <MarketplaceProjectGrid
+              projects={projects}
               isGridView={isGridView}
-              onUpdate={handleUpdateItem}
-              onDelete={handleDeleteItem}
+              onUpdate={handleUpdateProject}
               currentUser={user}
             />
           )}
         </div>
 
-        <PortfolioItemDialog
+        <MarketplaceProjectDialog
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
-          onSubmit={handleAddItem}
+          onSubmit={handleAddProject}
         />
       </div>
     </div>
