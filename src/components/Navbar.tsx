@@ -26,8 +26,10 @@ export const Navbar = () => {
     e.preventDefault();
     try {
       await signOut();
+      navigate("/");
     } catch (error) {
       console.error("Error signing out:", error);
+      toast.error("Failed to sign out");
     }
   };
 
@@ -48,29 +50,32 @@ export const Navbar = () => {
             </Button>
             
             <div className={`fixed inset-0 bg-white/95 md:bg-transparent md:static md:flex items-center gap-2 transition-all duration-300 ${isMenuOpen ? 'flex flex-col pt-20' : 'hidden'}`}>
-              <Button variant="ghost" size="icon" className="relative" asChild>
-                <Link to="/notifications">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                </Link>
-              </Button>
-              
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/search">
-                  <Search className="w-5 h-5" />
-                </Link>
-              </Button>
-
-              {user ? (
+              {user && (
                 <>
+                  <Button variant="ghost" size="icon" className="relative" asChild>
+                    <Link to="/notifications">
+                      <Bell className="w-5 h-5" />
+                      <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    </Link>
+                  </Button>
+                  
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link to="/search">
+                      <Search className="w-5 h-5" />
+                    </Link>
+                  </Button>
+
                   <Button variant="outline" asChild>
                     <Link to="/portfolio">Portfolio</Link>
                   </Button>
+                  
                   <Button variant="ghost" size="icon" onClick={handleSignOut}>
                     <LogOut className="w-5 h-5" />
                   </Button>
                 </>
-              ) : (
+              )}
+
+              {!user && (
                 <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
               )}
 
