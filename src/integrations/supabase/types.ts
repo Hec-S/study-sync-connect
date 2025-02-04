@@ -9,6 +9,54 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      marketplace_projects: {
+        Row: {
+          assigned_to: string | null
+          budget_range: string
+          category: string
+          created_at: string | null
+          deadline: string
+          description: string
+          id: string
+          owner_id: string
+          required_skills: string[] | null
+          school_name: string
+          status: Database["public"]["Enums"]["project_status"] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          budget_range: string
+          category: string
+          created_at?: string | null
+          deadline: string
+          description: string
+          id?: string
+          owner_id: string
+          required_skills?: string[] | null
+          school_name?: string
+          status?: Database["public"]["Enums"]["project_status"] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          budget_range?: string
+          category?: string
+          created_at?: string | null
+          deadline?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          required_skills?: string[] | null
+          school_name?: string
+          status?: Database["public"]["Enums"]["project_status"] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       newsletter_subscriptions: {
         Row: {
           created_at: string
@@ -26,6 +74,48 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      portfolio_items: {
+        Row: {
+          category: string
+          completion_date: string | null
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          owner_id: string
+          project_url: string | null
+          skills: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          completion_date?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          owner_id: string
+          project_url?: string | null
+          skills?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          completion_date?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          owner_id?: string
+          project_url?: string | null
+          skills?: string[]
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -53,42 +143,6 @@ export type Database = {
           id?: string
           major?: string | null
           school_name?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      projects: {
-        Row: {
-          category: string
-          created_at: string
-          deadline: string
-          description: string
-          id: string
-          owner_id: string
-          skills: string[]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          deadline: string
-          description: string
-          id?: string
-          owner_id: string
-          skills?: string[]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          deadline?: string
-          description?: string
-          id?: string
-          owner_id?: string
-          skills?: string[]
-          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -133,6 +187,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      project_status: "open" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
