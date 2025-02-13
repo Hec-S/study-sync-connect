@@ -8,13 +8,25 @@ import { useForm } from "react-hook-form";
 import { MarketplaceProject } from "./MarketplacePage";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CategorySelect } from "@/components/CategorySelect";
 
 interface MarketplaceProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status" | "assigned_to">) => void;
+  onSubmit: (data: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status">) => void;
   initialData?: MarketplaceProject;
+  isSubmitting?: boolean;
+}
+
+interface ProjectFormData {
+  title: string;
+  description: string;
+  category: string;
+  customCategory?: string;
+  budget_range: string;
+  required_skills: string[];
+  deadline: string;
+  school_name: string;
 }
 
 export const MarketplaceProjectDialog = ({
@@ -22,19 +34,23 @@ export const MarketplaceProjectDialog = ({
   onOpenChange,
   onSubmit,
   initialData,
+  isSubmitting = false,
 }: MarketplaceProjectDialogProps) => {
-  const { register, handleSubmit, watch, setValue } = useForm({
+  const { register, handleSubmit, watch, setValue, formState: { errors }, trigger } = useForm<ProjectFormData>({
     defaultValues: {
       title: initialData?.title || "",
       description: initialData?.description || "",
-      category: initialData?.category || "development",
-      budget_range: initialData?.budget_range || "$100-$500",
+      category: initialData?.category || "",
+      customCategory: initialData?.customCategory || "",
+      budget_range: initialData?.budget_range || "",
       required_skills: initialData?.required_skills || [""],
       deadline: initialData?.deadline?.split('T')[0] || "",
+      school_name: initialData?.school_name || "",
     },
   });
 
   const required_skills = watch("required_skills");
+  const selectedCategory = watch("category");
 
   const addSkill = () => {
     setValue("required_skills", [...required_skills, ""]);
@@ -47,22 +63,35 @@ export const MarketplaceProjectDialog = ({
     );
   };
 
-  const categories = [
-    "development",
-    "design",
-    "writing",
-    "research",
-    "data",
-    "other",
-  ];
+  const handleCategoryChange = async (value: string) => {
+    setValue("category", value);
+    await trigger("category"); // Trigger validation
+  };
 
-  const budgetRanges = [
-    "$100-$500",
-    "$500-$1000",
-    "$1000-$2500",
-    "$2500-$5000",
-    "$5000+",
-  ];
+  const handleFormSubmit = async (data: ProjectFormData) => {
+    // Validate category is selected
+    if (!data.category) {
+      return;
+    }
+
+    const formattedData = {
+      title: data.title.trim(),
+      description: data.description.trim(),
+      category: data.category,
+      budget_range: data.budget_range.startsWith('$') ? data.budget_range : `$${data.budget_range}`,
+      required_skills: data.required_skills
+        .filter(skill => skill.trim() !== "")
+        .map(skill => skill.trim()),
+      deadline: new Date(data.deadline).toISOString(),
+      school_name: data.school_name || "Unknown School"
+    };
+
+    try {
+      await onSubmit(formattedData);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -76,15 +105,24 @@ export const MarketplaceProjectDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="title">Project Title</Label>
               <Input
                 id="title"
                 placeholder="Enter a clear title"
-                {...register("title", { required: true })}
+                {...register("title", { 
+                  required: "Title is required",
+                  minLength: {
+                    value: 3,
+                    message: "Title must be at least 3 characters"
+                  }
+                })}
               />
+              {errors.title && (
+                <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -93,46 +131,64 @@ export const MarketplaceProjectDialog = ({
                 id="description"
                 placeholder="Describe your project requirements and goals"
                 className="h-32"
-                {...register("description", { required: true })}
+                {...register("description", { 
+                  required: "Description is required",
+                  minLength: {
+                    value: 10,
+                    message: "Description must be at least 10 characters"
+                  }
+                })}
               />
+              {errors.description && (
+                <p className="text-sm text-red-500 mt-1">{errors.description.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select
-                onValueChange={(value) => setValue("category", value)}
-                defaultValue={initialData?.category || "development"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CategorySelect
+                value={selectedCategory}
+                onValueChange={handleCategoryChange}
+                {...register("category", {
+                  required: "Please select a category"
+                })}
+                error={errors.category?.message}
+              />
+              {selectedCategory === "other" && (
+                <div className="mt-2">
+                  <Input
+                    placeholder="Specify your category"
+                    {...register("customCategory", {
+                      required: selectedCategory === "other" ? "Please specify the category" : false
+                    })}
+                  />
+                  {errors.customCategory && (
+                    <p className="text-sm text-red-500 mt-1">{errors.customCategory.message}</p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="budget_range">Budget Range</Label>
-              <Select
-                onValueChange={(value) => setValue("budget_range", value)}
-                defaultValue={initialData?.budget_range || "$100-$500"}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a budget range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgetRanges.map((range) => (
-                    <SelectItem key={range} value={range}>
-                      {range}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Enter budget range (e.g. $50-$100)"
+                  {...register("budget_range", {
+                    required: "Budget range is required",
+                    pattern: {
+                      value: /^\$?\d+(-\$?\d+)?$/,
+                      message: "Please enter a valid budget range (e.g. $50-$100 or $50)"
+                    }
+                  })}
+                />
+                {errors.budget_range && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.budget_range.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -140,8 +196,19 @@ export const MarketplaceProjectDialog = ({
               <Input
                 id="deadline"
                 type="date"
-                {...register("deadline", { required: true })}
+                min={new Date().toISOString().split('T')[0]}
+                {...register("deadline", { 
+                  required: "Deadline is required",
+                  validate: (value) => {
+                    const date = new Date(value);
+                    const today = new Date();
+                    return date >= today || "Deadline must be in the future";
+                  }
+                })}
               />
+              {errors.deadline && (
+                <p className="text-sm text-red-500 mt-1">{errors.deadline.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -162,9 +229,20 @@ export const MarketplaceProjectDialog = ({
                   <div key={index} className="flex gap-2">
                     <Input
                       placeholder="Enter a required skill"
-                      {...register(`required_skills.${index}` as const, { required: true })}
+                      {...register(`required_skills.${index}` as const, { 
+                        required: "Required skill cannot be empty",
+                        minLength: {
+                          value: 2,
+                          message: "Skill must be at least 2 characters"
+                        }
+                      })}
                       className={cn(index !== 0 && "mt-2")}
                     />
+                    {errors.required_skills?.[index] && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {errors.required_skills[index]?.message}
+                      </p>
+                    )}
                     {index !== 0 && (
                       <Button
                         type="button"
@@ -186,11 +264,19 @@ export const MarketplaceProjectDialog = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit">
-              {initialData ? "Save Changes" : "Post Project"}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  {initialData ? "Saving..." : "Posting..."}
+                </>
+              ) : (
+                initialData ? "Save Changes" : "Post Project"
+              )}
             </Button>
           </div>
         </form>

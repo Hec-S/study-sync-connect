@@ -5,9 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean }>;
+  signUp: (email: string, password: string, profile: { 
+    full_name: string;
+    school_name: string;
+    major: string;
+    graduation_year: number;
+  }) => Promise<{ success: boolean }>;
+  signOut: () => Promise<{ success: boolean }>;
   error: string | null;
 };
 
@@ -42,36 +47,157 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, profile: {
+    full_name: string;
+    school_name: string;
+    major: string;
+    graduation_year: number;
+  }) => {
+    setError(null);
+    setLoading(true);
+    
+    // Validate required fields
+    if (!profile.full_name || !profile.school_name || !profile.major || !profile.graduation_year) {
+      throw new Error("All profile fields are required");
+    }
+
     try {
-      const { error } = await supabase.auth.signUp({
+      console.log("Starting sign up process...");
+      
+      // Begin transaction
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: profile.full_name, // Store in auth metadata as backup
+            school_name: profile.school_name,
+            major: profile.major,
+            graduation_year: profile.graduation_year
+          }
+        }
       });
-      if (error) throw error;
+      
+      if (signUpError) {
+        console.error("Sign up error:", signUpError);
+        throw new Error(`Authentication failed: ${signUpError.message}`);
+      }
+      
+      if (!signUpData.user) {
+        throw new Error("No user data returned from sign up");
+      }
+
+      console.log("User created successfully:", signUpData.user.id);
+      
+      // Create profile with all fields
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: signUpData.user.id,
+          full_name: profile.full_name,
+          school_name: profile.school_name,
+          major: profile.major,
+          graduation_year: profile.graduation_year
+        }, {
+          onConflict: 'id'
+        });
+      
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // Attempt to clean up auth user if profile creation fails
+        await supabase.auth.admin.deleteUser(signUpData.user.id);
+        throw new Error(`Profile creation failed: ${profileError.message}`);
+      }
+
+      console.log("Profile created successfully");
+      return { success: true };
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const message = error instanceof Error ? error.message : "Failed to sign up";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const signIn = async (email: string, password: string) => {
+    setError(null);
+    setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Attempt sign in
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
+      if (signInError) {
+        console.error("Sign in error details:", JSON.stringify(signInError, null, 2));
+        throw new Error(signInError.message);
+      }
+
+      // Verify session was created
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error("Session error details:", JSON.stringify(sessionError, null, 2));
+        throw new Error(sessionError.message);
+      }
+      if (!session) {
+        console.error("No session established after sign in");
+        throw new Error("Failed to establish session");
+      }
+      console.log("Session established:", session);
+
+      // Get or create profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', session.user.id)
+        .single();
+      
+      if (profileError) {
+        console.error("Profile error details:", JSON.stringify(profileError, null, 2));
+        if (profileError.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+          throw new Error(profileError.message);
+        }
+      }
+
+      if (!profile) {
+        // Create profile if it doesn't exist
+        const { error: createError } = await supabase
+          .from('profiles')
+          .insert([{ id: session.user.id }]);
+        if (createError) {
+        console.error("Profile creation error details:", JSON.stringify(createError, null, 2));
+        throw new Error(createError.message);
+      }
+      }
+
+      setUser(session.user);
+      return { success: true };
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const message = error instanceof Error ? error.message : "Failed to sign in";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const signOut = async () => {
+    setError(null);
+    setLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Clear user state
+      setUser(null);
+      return { success: true };
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const message = error instanceof Error ? error.message : "Failed to sign out";
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
   };
 

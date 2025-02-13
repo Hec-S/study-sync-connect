@@ -56,15 +56,21 @@ const SAMPLE_PROJECTS: Project[] = [
 ];
 
 const ProjectGridSkeleton = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 opacity-75 transition-opacity duration-200">
+  <div className="flex flex-wrap gap-6 justify-center opacity-75 transition-opacity duration-200">
     {[1, 2, 3, 4, 5, 6].map((i) => (
-      <div key={i} className="space-y-4 p-6 border rounded-lg bg-white/50">
-        <Skeleton className="h-6 w-3/4" />
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-20 w-full" />
-        <div className="flex gap-2">
-          <Skeleton className="h-6 w-20" />
-          <Skeleton className="h-6 w-20" />
+      <div key={i} className="w-[300px] h-[400px] p-6 border rounded-lg bg-white/50 flex flex-col">
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/4" />
+          <Skeleton className="h-20 w-full" />
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-6 w-20" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+        </div>
+        <div className="mt-auto pt-4 border-t">
+          <Skeleton className="h-8 w-full" />
         </div>
       </div>
     ))}
@@ -92,7 +98,7 @@ export const ProjectGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 opacity-100 transition-opacity duration-200">
+    <div className="flex flex-wrap gap-6 justify-center opacity-100 transition-opacity duration-200">
       {projects.map((project, index) => (
         <ProjectCard key={index} {...project} />
       ))}

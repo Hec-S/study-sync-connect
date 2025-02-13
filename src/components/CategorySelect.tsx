@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   Select,
   SelectContent,
@@ -8,26 +8,40 @@ import {
 } from "@/components/ui/select";
 import { flattenCategories } from "@/lib/categories";
 
-interface CategorySelectProps {
+interface CategorySelectProps extends React.ComponentPropsWithoutRef<typeof Select> {
   value?: string;
   onValueChange: (value: string) => void;
+  error?: string;
 }
 
-export function CategorySelect({ value, onValueChange }: CategorySelectProps) {
-  const categories = flattenCategories();
+export const CategorySelect = forwardRef<HTMLButtonElement, CategorySelectProps>(
+  ({ value, onValueChange, error, ...props }, ref) => {
+    const categories = flattenCategories();
 
-  return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger>
-        <SelectValue placeholder="Select a category" />
-      </SelectTrigger>
-      <SelectContent>
-        {categories.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
+    return (
+      <div className="space-y-1">
+        <Select 
+          value={value} 
+          onValueChange={onValueChange}
+          {...props}
+        >
+          <SelectTrigger ref={ref}>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {error && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+CategorySelect.displayName = "CategorySelect";

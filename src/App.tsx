@@ -5,8 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
-import PostProject from "./pages/PostProject";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
+import { ProjectDetails } from "@/components/ProjectDetails";
+import { MarketplacePage } from "@/components/marketplace/MarketplacePage";
+import { ProfilePage } from "@/components/profile/ProfilePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,8 +27,12 @@ const App = () => {
           <TooltipProvider>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/create-project" element={<PostProject />} />
               <Route path="/portfolio" element={<PortfolioPage />} />
+              <Route path="/portfolio/:userId" element={<PortfolioPage />} />
+              <Route path="/project/:projectId" element={<ProjectDetails />} />
+              <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <Toaster />

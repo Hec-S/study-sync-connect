@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Grid, List, Plus } from "lucide-react";
+import { Grid, List, Plus, User } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +24,7 @@ export type PortfolioItem = {
 };
 
 export const PortfolioPage = () => {
+  const { userId } = useParams();
   const [isGridView, setIsGridView] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [items, setItems] = useState<PortfolioItem[]>([]);
@@ -30,15 +32,25 @@ export const PortfolioPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // Determine if viewing own portfolio
+  const isOwnPortfolio = !userId || (user && userId === user.id);
+
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [userId, user]);
 
   const fetchItems = async () => {
     try {
-      const { data, error } = await supabase
+      const query = supabase
         .from('portfolio_items')
-        .select('*')
+        .select('*');
+      
+      // Only filter by user ID if one is provided
+      if (userId) {
+        query.eq('owner_id', userId);
+      }
+      
+      const { data, error } = await query
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -151,11 +163,30 @@ export const PortfolioPage = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col gap-8">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">My Portfolio</h1>
-              <p className="text-muted-foreground">Showcase your completed projects</p>
-            </div>
-            <div className="flex items-center gap-2">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl md:text-3xl font-bold">
+                    {isOwnPortfolio ? "My Portfolio" : "Portfolio"}
+                  </h1>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="rounded-full"
+                  >
+                    <Link to={`/profile${userId ? `/${userId}` : ''}`}>
+                      <User className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+                <p className="text-muted-foreground">
+                  {isOwnPortfolio 
+                    ? "Showcase your completed projects" 
+                    : "View completed projects"}
+                </p>
+              </div>
+            {isOwnPortfolio && (
+              <div className="flex items-center gap-2">
               <div className="border rounded-lg p-1 flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -174,11 +205,12 @@ export const PortfolioPage = () => {
                   <Grid className="h-4 w-4" />
                 </Button>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Project
-              </Button>
-            </div>
+                <Button onClick={() => setIsDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Project
+                </Button>
+              </div>
+            )}
           </div>
 
           {isLoading ? (
@@ -191,10 +223,12 @@ export const PortfolioPage = () => {
               <p className="text-muted-foreground mb-4">
                 Add your first project to showcase your work
               </p>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Project
-              </Button>
+              {isOwnPortfolio && (
+                <Button onClick={() => setIsDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Project
+                </Button>
+              )}
             </div>
           ) : (
             <PortfolioGrid

@@ -18,11 +18,9 @@ export const MarketplaceProjectGrid = ({
 }: MarketplaceProjectGridProps) => {
   return (
     <div
-      className={`grid gap-4 ${
-        isGridView
-          ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-          : "grid-cols-1"
-      }`}
+      className={`grid grid-cols-1 gap-6 ${
+        !isGridView ? "grid-cols-1" : "md:grid-cols-2"
+      } max-w-[1400px] mx-auto px-4 md:gap-8 lg:gap-10`}
     >
       {projects.map((project) => (
         <MarketplaceProjectCard

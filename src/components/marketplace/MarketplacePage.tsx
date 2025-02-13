@@ -16,11 +16,13 @@ export type MarketplaceProject = {
   budget_range: string;
   required_skills: string[];
   deadline: string;
-  status: "open" | "in_progress" | "completed" | "cancelled";
+  customCategory?: string;
+  status: "open" | "completed" | "cancelled";
   owner_id: string;
-  assigned_to?: string;
+  owner_name?: string | null;
   created_at: string;
   updated_at: string;
+  school_name: string;
 };
 
 export const MarketplacePage = () => {
@@ -28,6 +30,7 @@ export const MarketplacePage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [projects, setProjects] = useState<MarketplaceProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -37,13 +40,36 @@ export const MarketplacePage = () => {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase
+      // First get all projects
+      const { data: projects, error: projectsError } = await supabase
         .from('marketplace_projects')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setProjects(data || []);
+      if (projectsError) throw projectsError;
+
+      // Then get all profiles for the project owners
+      const ownerIds = [...new Set((projects || []).map(p => p.owner_id))];
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', ownerIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of owner_id to full_name
+      const ownerNames = (profiles || []).reduce((acc, profile) => ({
+        ...acc,
+        [profile.id]: profile.full_name
+      }), {} as Record<string, string | null>);
+
+      // Combine the data
+      const projectsWithOwnerNames = (projects || []).map(project => ({
+        ...project,
+        owner_name: ownerNames[project.owner_id] || null
+      }));
+
+      setProjects(projectsWithOwnerNames as MarketplaceProject[]);
     } catch (error) {
       console.error('Error fetching projects:', error);
       toast({
@@ -56,7 +82,7 @@ export const MarketplacePage = () => {
     }
   };
 
-  const handleAddProject = async (newProject: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status" | "assigned_to">) => {
+  const handleAddProject = async (newProject: Omit<MarketplaceProject, "id" | "created_at" | "updated_at" | "owner_id" | "status" | "school_name">) => {
     if (!user) {
       toast({
         title: "Error",
@@ -66,20 +92,40 @@ export const MarketplacePage = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
+      // Get user's school name from profile
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('school_name, full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        // Continue with default values
+      }
+
       const { data, error } = await supabase
         .from('marketplace_projects')
         .insert([{
           ...newProject,
           owner_id: user.id,
-          status: 'open',
+          status: 'open' as const, // Explicitly type as project_status enum
+          school_name: profileData?.school_name || "Unknown School", // Use fallback if profile fetch fails
         }])
         .select()
         .single();
 
       if (error) throw error;
 
-      setProjects((prev) => [data, ...prev]);
+      // Add the owner's name to the new project data
+      const newProjectWithOwner = {
+        ...data,
+        owner_name: profileData?.full_name || null
+      } as MarketplaceProject;
+      
+      setProjects((prev) => [newProjectWithOwner, ...prev]);
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -89,9 +135,11 @@ export const MarketplacePage = () => {
       console.error('Error adding project:', error);
       toast({
         title: "Error",
-        description: "Failed to post project",
+        description: error instanceof Error ? error.message : "Failed to post project",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -107,7 +155,7 @@ export const MarketplacePage = () => {
       if (error) throw error;
 
       setProjects((prev) =>
-        prev.map((project) => (project.id === id ? { ...project, ...data } : project))
+        prev.map((project) => (project.id === id ? { ...project, ...data as MarketplaceProject } : project))
       );
       toast({
         title: "Success",
@@ -130,7 +178,7 @@ export const MarketplacePage = () => {
         <div className="flex flex-col gap-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Project Marketplace</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Student Work Hub</h1>
               <p className="text-muted-foreground">Find projects or post your own</p>
             </div>
             <div className="flex items-center gap-2">
@@ -152,9 +200,21 @@ export const MarketplacePage = () => {
                   <Grid className="h-4 w-4" />
                 </Button>
               </div>
-              <Button onClick={() => setIsDialogOpen(true)}>
+              <Button 
+                onClick={() => {
+                  if (!user) {
+                    toast({
+                      title: "Sign in required",
+                      description: "Please sign in to post a project",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setIsDialogOpen(true);
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
-                Post Project
+                Post
               </Button>
             </div>
           </div>
@@ -169,9 +229,21 @@ export const MarketplacePage = () => {
               <p className="text-muted-foreground mb-4">
                 Be the first to post a project
               </p>
-              <Button onClick={() => setIsDialogOpen(true)}>
+              <Button 
+                onClick={() => {
+                  if (!user) {
+                    toast({
+                      title: "Sign in required",
+                      description: "Please sign in to post a project",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setIsDialogOpen(true);
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
-                Post Your Project
+                Post
               </Button>
             </div>
           ) : (
@@ -188,6 +260,7 @@ export const MarketplacePage = () => {
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onSubmit={handleAddProject}
+          isSubmitting={isSubmitting}
         />
       </div>
     </div>

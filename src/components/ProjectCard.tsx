@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MessageSquare, ArrowRight, Bookmark } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface ProjectCardProps {
   title: string;
@@ -29,7 +30,8 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
   const truncatedDescription = isExpanded ? description : description.slice(0, 100) + (description.length > 100 ? "..." : "");
 
   return (
-    <Card className="group h-full flex flex-col justify-between w-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-gray-100">
+    <Link to={`/project/${title.toLowerCase().replace(/\s+/g, '-')}`} className="block no-underline">
+      <Card className="group w-[300px] h-[400px] flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-fadeIn bg-white border-border border-gray-200">
       <div>
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -37,64 +39,60 @@ export const ProjectCard = ({ title, description, category, deadline, skills }: 
               <CardTitle className="text-lg md:text-xl font-semibold group-hover:text-primary transition-colors line-clamp-2">
                 {title}
               </CardTitle>
-              <Badge 
-                variant="secondary" 
-                className={`mt-2 text-xs md:text-sm ${getCategoryColor(category)}`}
-              >
-                {category}
-              </Badge>
             </div>
             <Button
               variant="ghost"
               size="icon"
               className={`h-8 w-8 ${isBookmarked ? 'text-primary' : 'text-gray-400'}`}
-              onClick={() => setIsBookmarked(!isBookmarked)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsBookmarked(!isBookmarked);
+              }}
             >
               <Bookmark className="h-4 w-4" fill={isBookmarked ? "currentColor" : "none"} />
             </Button>
           </div>
         </CardHeader>
         
-        <CardContent>
-          <p className="text-sm md:text-base text-gray-600 mb-4">
+        <CardContent className="flex-1 overflow-hidden">
+          <p className="text-sm md:text-base text-gray-600 mb-4 overflow-hidden">
             {truncatedDescription}
             {description.length > 100 && (
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
                 className="ml-1 text-primary hover:underline font-medium"
               >
                 {isExpanded ? "Show less" : "Read more"}
               </button>
             )}
           </p>
-          <div className="flex flex-wrap gap-1.5 md:gap-2">
-            {skills.map((skill) => (
-              <Badge 
-                key={skill} 
-                variant="outline" 
-                className="text-xs md:text-sm bg-blue-50 hover:bg-blue-100 transition-colors"
-              >
-                {skill}
-              </Badge>
-            ))}
-          </div>
         </CardContent>
       </div>
       
-      <CardFooter className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between items-center border-t pt-4 mt-auto">
-        <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500">
-          <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+      <CardFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between items-center border-t pt-2 mt-auto">
+        <div className="flex items-center gap-1 text-sm text-gray-500">
+          <Calendar className="w-3 h-3" />
           <span>Due: {deadline}</span>
         </div>
         <Button 
           size="sm" 
-          className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-xs md:text-sm bg-primary hover:bg-primary/90"
+          className="w-full sm:w-auto group-hover:gap-3 transition-all duration-300 text-sm bg-primary hover:bg-primary/90"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
-          <MessageSquare className="w-3 h-3 md:w-4 md:h-4" />
+          <MessageSquare className="w-3 h-3" />
           <span>Connect</span>
-          <ArrowRight className="w-0 h-3 md:h-4 opacity-0 group-hover:w-3 md:group-hover:w-4 group-hover:opacity-100 transition-all duration-300" />
+          <ArrowRight className="w-0 h-3 opacity-0 group-hover:w-3 group-hover:opacity-100 transition-all duration-300" />
         </Button>
       </CardFooter>
-    </Card>
+      </Card>
+    </Link>
   );
 };

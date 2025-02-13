@@ -1,11 +1,97 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { ProjectGrid } from "@/components/ProjectGrid";
+import { MarketplaceProjectGrid } from "@/components/marketplace/MarketplaceProjectGrid";
+import { MarketplaceProject } from "@/components/marketplace/MarketplacePage";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
+import { SearchResults } from "@/components/search/SearchResults";
 
 const Index = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const searchTerm = searchQuery.trim();
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .ilike("full_name", `%${searchTerm}%`)
+          .limit(10);
+
+        if (error) throw error;
+        setSearchResults(data || []);
+      } catch (error) {
+        console.error("Search error:", error);
+        toast({
+          title: "Failed to search users",
+          description: "Please try again",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimeout = setTimeout(searchUsers, 300);
+    return () => clearTimeout(debounceTimeout);
+  }, [searchQuery]);
+
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: projects = [], isLoading } = useQuery({
+    queryKey: ['marketplace_projects'],
+    queryFn: async () => {
+      // First get all projects
+      const { data: projects, error: projectsError } = await supabase
+        .from('marketplace_projects')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (projectsError) throw projectsError;
+
+      // Then get all profiles for the project owners
+      const ownerIds = [...new Set((projects || []).map(p => p.owner_id))];
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', ownerIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of owner_id to full_name
+      const ownerNames = (profiles || []).reduce((acc, profile) => ({
+        ...acc,
+        [profile.id]: profile.full_name
+      }), {} as Record<string, string | null>);
+
+      // Combine the data
+      const projectsWithOwnerNames = (projects || []).map(project => ({
+        ...project,
+        owner_name: ownerNames[project.owner_id] || null
+      }));
+
+      return projectsWithOwnerNames as MarketplaceProject[];
+    },
+  });
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
@@ -47,14 +133,20 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12 px-4 md:px-0">
             <div className="flex-1 relative">
               <Input
-                placeholder="Search projects or skills..."
+                type="text"
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowResults(true)}
                 className="pl-10 h-10 md:h-12 text-base md:text-lg shadow-sm"
               />
-              <Search className="w-4 h-4 md:w-5 md:h-5 absolute left-3 top-3 md:top-3.5 text-gray-400" />
+              <Search className="w-4 h-4 md:w-5 md:h-5 absolute left-3 top-3 md:top-3.5 text-primary" />
+              {showResults && (searchResults.length > 0 || isSearching) && (
+                <div className="absolute top-full mt-1 w-full bg-background border rounded-lg shadow-lg z-50">
+                  <SearchResults results={searchResults} isLoading={isSearching} />
+                </div>
+              )}
             </div>
-            <Button size="lg" className="h-10 md:h-12 text-base md:text-lg shadow-sm">
-              Find Projects
-            </Button>
           </div>
 
           {/* Categories */}
@@ -72,17 +164,51 @@ const Index = () => {
         </div>
 
         {/* Latest Projects Section */}
-        <section className="mb-20 bg-white rounded-2xl shadow-sm p-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Latest Projects
-            </h2>
-            <Button variant="outline" className="text-sm md:text-base">
-              View All
+        <section className="mb-20 bg-gradient-to-b from-white/50 to-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border border-gray-100/50">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 border-b border-gray-100">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <h2 className="text-3xl md:text-4xl font-bold text-black">
+                  Student Work Hub
+                </h2>
+              </div>
+              <p className="text-lg text-muted-foreground">
+                Find projects and collaborate with fellow students
+              </p>
+            </div>
+            <Button 
+              onClick={() => navigate('/marketplace')}
+              className="bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all duration-300"
+              size="lg"
+            >
+              <Search className="h-5 w-5 mr-2" />
+              Find Projects
             </Button>
           </div>
-          <ProjectGrid />
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-6 w-6 rounded-full bg-primary/20 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="text-center py-16 bg-gray-50/50 rounded-xl border border-gray-100/50">
+              <h3 className="text-2xl font-semibold text-gray-800 mb-3">No Projects Found</h3>
+              <p className="text-gray-600 text-lg">Be the first to post a project and start collaborating!</p>
+            </div>
+          ) : (
+            <MarketplaceProjectGrid
+              projects={projects}
+              isGridView={true}
+              onUpdate={() => {}}
+              currentUser={user}
+            />
+          )}
         </section>
+
       </main>
     </div>
   );
