@@ -1,6 +1,9 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search, Bell, User } from "lucide-react";
+import { User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "./auth/AuthDialog";
 import {
@@ -14,10 +17,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Navbar = () => {
-  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { user, signOut, error: authError } = useAuth();
 
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const handleSignOut = async () => {
-    await signOut();
+    setIsSigningOut(true);
+    try {
+      const { success } = await signOut();
+      if (success) {
+        toast.success("Signed out successfully");
+      }
+    } catch (err) {
+      toast.error(authError || "Failed to sign out");
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -29,31 +44,29 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            {user && (
-              <Button variant="outline" asChild>
-                <Link to="/create-project" className="flex items-center gap-2">
-                  <PlusCircle className="w-4 h-4" />
-                  Post Project
-                </Link>
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => navigate('/marketplace')}
+            >
+              Work Hub
+            </Button>
             
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/search">
-                  <Search className="w-5 h-5" />
-                </Link>
-              </Button>
-
-              {user && (
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" asChild>
+                    <Link to="/portfolio">My Portfolio</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/profile">My Profile</Link>
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" disabled>
+                  Portfolio
                 </Button>
               )}
-
-              <Button variant="outline" asChild>
-                <Link to="/portfolio">Portfolio</Link>
-              </Button>
 
               {user ? (
                 <DropdownMenu>
@@ -85,10 +98,11 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      className="text-red-600 cursor-pointer"
+                      className="text-red-600 cursor-pointer disabled:cursor-not-allowed"
+                      disabled={isSigningOut}
                       onClick={handleSignOut}
                     >
-                      Sign out
+                      {isSigningOut ? "Signing out..." : "Sign out"}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
