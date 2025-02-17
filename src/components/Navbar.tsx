@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -61,7 +62,7 @@ export const Navbar = () => {
                   <Button variant="outline" asChild className="relative">
                     <Link to="/connections">
                       Social
-                      <NotificationBadge type="social" />
+                      <NotificationBadge type="all" />
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
