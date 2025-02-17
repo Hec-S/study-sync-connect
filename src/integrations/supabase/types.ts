@@ -260,6 +260,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_messages_as_read: {
+        Args: {
+          sender_id_param: string
+          receiver_id_param: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
