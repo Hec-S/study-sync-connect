@@ -62,7 +62,7 @@ export const Navbar = () => {
                   <Button variant="outline" asChild className="relative">
                     <Link to="/connections">
                       Social
-                      <NotificationBadge type="all" />
+                      <NotificationBadge type="connections" />
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
