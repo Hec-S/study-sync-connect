@@ -6,117 +6,36 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type ConnectionStatus = 'pending' | 'accepted' | 'rejected';
-
-export interface Message {
-  id: string;
-  sender_id: string;
-  receiver_id: string;
-  content: string;
-  read_status: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Connection {
-  id: string;
-  requester_id: string;
-  receiver_id: string;
-  status: ConnectionStatus;
-  created_at: string;
-  updated_at: string;
-}
-
 export type Database = {
   public: {
     Tables: {
-      messages: {
-        Row: {
-          id: string;
-          sender_id: string;
-          receiver_id: string;
-          content: string;
-          read_status: boolean;
-          created_at: string;
-          updated_at: string;
-        }
-        Insert: {
-          id?: string;
-          sender_id: string;
-          receiver_id: string;
-          content: string;
-          read_status?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        }
-        Update: {
-          id?: string;
-          sender_id?: string;
-          receiver_id?: string;
-          content?: string;
-          read_status?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      },
       connections: {
         Row: {
-          id: string;
-          requester_id: string;
-          receiver_id: string;
-          status: ConnectionStatus;
-          created_at: string;
-          updated_at: string;
+          created_at: string
+          id: string
+          receiver_id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["connection_status"]
+          updated_at: string
         }
         Insert: {
-          id?: string;
-          requester_id: string;
-          receiver_id: string;
-          status?: ConnectionStatus;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string
+          id?: string
+          receiver_id: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
         }
         Update: {
-          id?: string;
-          requester_id?: string;
-          receiver_id?: string;
-          status?: ConnectionStatus;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "connections_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "connections_receiver_id_fkey"
-            columns: ["receiver_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      },
+        Relationships: []
+      }
       marketplace_projects: {
         Row: {
           assigned_to: string | null
@@ -128,7 +47,7 @@ export type Database = {
           id: string
           owner_id: string
           required_skills: string[] | null
-          school_name: string
+          school_name: string | null
           status: Database["public"]["Enums"]["project_status"] | null
           title: string
           updated_at: string | null
@@ -143,7 +62,7 @@ export type Database = {
           id?: string
           owner_id: string
           required_skills?: string[] | null
-          school_name?: string
+          school_name?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
           title: string
           updated_at?: string | null
@@ -158,10 +77,40 @@ export type Database = {
           id?: string
           owner_id?: string
           required_skills?: string[] | null
-          school_name?: string
+          school_name?: string | null
           status?: Database["public"]["Enums"]["project_status"] | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read_status: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read_status?: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read_status?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -231,33 +180,33 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          Description: string | null
           full_name: string | null
+          graduation_year: number | null
           id: string
           major: string | null
           school_name: string | null
           updated_at: string
-          graduation_year: number | null
-          description: string | null
         }
         Insert: {
           created_at?: string
+          Description?: string | null
           full_name?: string | null
+          graduation_year?: number | null
           id: string
           major?: string | null
           school_name?: string | null
           updated_at?: string
-          graduation_year?: number | null
-          description?: string | null
         }
         Update: {
           created_at?: string
+          Description?: string | null
           full_name?: string | null
+          graduation_year?: number | null
           id?: string
           major?: string | null
           school_name?: string | null
           updated_at?: string
-          graduation_year?: number | null
-          description?: string | null
         }
         Relationships: []
       }
@@ -287,6 +236,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      are_users_connected: {
+        Args: {
+          user1_id: string
+          user2_id: string
+        }
+        Returns: boolean
+      }
+      get_connection_count: {
+        Args: {
+          user_id: string
+        }
+        Returns: number
+      }
       get_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
@@ -298,22 +260,10 @@ export type Database = {
         }
         Returns: boolean
       }
-      get_connection_count: {
-        Args: {
-          user_id: string
-        }
-        Returns: number
-      }
-      mark_messages_as_read: {
-        Args: {
-          sender_id_param: string
-          receiver_id_param: string
-        }
-        Returns: void
-      }
     }
     Enums: {
       app_role: "admin" | "user"
+      connection_status: "pending" | "accepted" | "rejected"
       project_status: "open" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
