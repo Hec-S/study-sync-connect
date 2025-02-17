@@ -7,16 +7,18 @@ export interface PasswordInputProps extends Omit<React.InputHTMLAttributes<HTMLI
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  id?: string;
 }
 
 export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ value, onChange, className = "", ...props }, ref) => {
+  ({ value, onChange, className = "", id = "password", ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
       <div className="relative">
         <Input
           ref={ref}
+          id={id}
           type={showPassword ? "text" : "password"}
           value={value}
           onChange={(e) => onChange(e.target.value)}

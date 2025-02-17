@@ -13,8 +13,14 @@ import {
   GraduationCap, 
   Quote, 
   Plus,
-  School
+  School,
+  UserPlus,
+  UserCheck,
+  Clock,
+  UserX,
+  Users
 } from "lucide-react";
+import type { Connection, ConnectionStatus } from "@/integrations/supabase/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ProfileDialog } from "./ProfileDialog";
 import { PortfolioGrid } from "../portfolio/PortfolioGrid";
@@ -29,12 +35,24 @@ type Profile = {
   school_name: string | null;
 };
 
+type ConnectionState = {
+  status: ConnectionStatus | null;
+  id: string | null;
+  isRequester: boolean;
+};
+
 export const ProfilePage = () => {
+  const [connectionState, setConnectionState] = useState<ConnectionState>({
+    status: null,
+    id: null,
+    isRequester: false
+  });
   const { userId } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [workOpportunities, setWorkOpportunities] = useState<MarketplaceProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [connectionCount, setConnectionCount] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
@@ -48,12 +66,247 @@ export const ProfilePage = () => {
       Promise.all([
         fetchProfile(),
         fetchPortfolioItems(),
-        fetchWorkOpportunities()
+        fetchWorkOpportunities(),
+        fetchConnectionStatus(),
+        fetchConnectionCount()
       ]).finally(() => setIsLoading(false));
     }
   }, [targetUserId]);
 
+  const fetchConnectionCount = async () => {
+    if (!targetUserId) return;
+
+    try {
+      const { data, error } = await supabase
+        .rpc('get_connection_count', {
+          user_id: targetUserId
+        });
+
+      if (error) throw error;
+      setConnectionCount(data || 0);
+    } catch (error) {
+      console.error('Error fetching connection count:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load connection count",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchConnectionStatus = async () => {
+    if (!user?.id || isOwnProfile || !targetUserId) {
+      setConnectionState({
+        status: null,
+        id: null,
+        isRequester: false
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('connections')
+        .select('*')
+        .or(
+          `and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),` +
+          `and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`
+        )
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setConnectionState({
+          status: data.status,
+          id: data.id,
+          isRequester: data.requester_id === user.id
+        });
+      } else {
+        setConnectionState({
+          status: null,
+          id: null,
+          isRequester: false
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching connection status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load connection status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleConnect = async () => {
+    if (!user?.id || !targetUserId) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to connect with others",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Check if a connection already exists
+      const { data: existingConnection, error: checkError } = await supabase
+        .from('connections')
+        .select('*')
+        .or(
+          `and(requester_id.eq.${user.id},receiver_id.eq.${targetUserId}),` +
+          `and(requester_id.eq.${targetUserId},receiver_id.eq.${user.id})`
+        )
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingConnection) {
+        toast({
+          title: "Error",
+          description: "A connection already exists with this user",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create new connection request
+      const { data, error } = await supabase
+        .from('connections')
+        .insert([{
+          requester_id: user.id,
+          receiver_id: targetUserId,
+          status: 'pending'
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          toast({
+            title: "Error",
+            description: "A connection already exists with this user",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+
+      setConnectionState({
+        status: 'pending',
+        id: data.id,
+        isRequester: true
+      });
+
+      toast({
+        title: "Success",
+        description: "Connection request sent",
+      });
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send connection request. Please try again later.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!connectionState.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('connections')
+        .delete()
+        .eq('id', connectionState.id);
+
+      if (error) throw error;
+
+      setConnectionState({
+        status: null,
+        id: null,
+        isRequester: false
+      });
+
+      toast({
+        title: "Success",
+        description: "Connection request cancelled",
+      });
+    } catch (error) {
+      console.error('Error cancelling connection request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel connection request",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getConnectionButton = () => {
+    if (isOwnProfile) return null;
+
+    switch (connectionState.status) {
+      case 'pending':
+        return connectionState.isRequester ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCancelRequest}
+            className="text-yellow-600 hover:text-yellow-700"
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Cancel Request
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-yellow-600"
+            disabled
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Pending Response
+          </Button>
+        );
+      case 'accepted':
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-green-600"
+            disabled
+          >
+            <UserCheck className="h-4 w-4 mr-2" />
+            Connected
+          </Button>
+        );
+      default:
+        return (
+          <Button
+            size="sm"
+            onClick={handleConnect}
+            className="bg-primary hover:bg-primary/90 text-white"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Connect
+          </Button>
+        );
+    }
+  };
+
   const fetchProfile = async () => {
+    if (!targetUserId) {
+      toast({
+        title: "Error",
+        description: "Invalid profile ID",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -61,13 +314,24 @@ export const ProfilePage = () => {
         .eq('id', targetUserId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') { // No rows returned
+          toast({
+            title: "Error",
+            description: "Profile not found",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
+
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
         title: "Error",
-        description: "Failed to load profile",
+        description: "Failed to load profile. Please try again later.",
         variant: "destructive",
       });
     }
@@ -154,17 +418,78 @@ export const ProfilePage = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-        <Navbar />
-        <div className="container mx-auto px-8 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  const LoadingSkeleton = () => (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <Navbar />
+      <div className="relative">
+        <div className="h-48 bg-gradient-to-r from-blue-600 to-purple-600" />
+        
+        <div className="container mx-auto px-8">
+          <Card className="max-w-7xl mx-auto -mt-24 relative z-10 border-border border-gray-500">
+            <div className="flex flex-row items-start gap-8 p-8">
+              {/* Avatar Skeleton */}
+              <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse" />
+
+              {/* Profile Info Skeleton */}
+              <div className="space-y-4 flex-1">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+                    <div className="h-4 w-96 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                </div>
+
+                {/* Description Skeleton */}
+                <div className="relative pl-8 mt-4">
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Stats Section Skeleton */}
+      <div className="container mx-auto px-8 mt-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 gap-6">
+            {[...Array(2)].map((_, i) => (
+              <Card key={i} className="border-border border-gray-500">
+                <CardContent className="p-6 text-center">
+                  <div className="h-6 w-24 mx-auto bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-16 mx-auto bg-gray-200 rounded animate-pulse" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
-    );
+
+      {/* Portfolio Section Skeleton */}
+      <div className="container mx-auto px-8 py-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-2" />
+          <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mb-6" />
+          
+          <div className="grid gap-4">
+            {[...Array(2)].map((_, i) => (
+              <Card key={i} className="border-border border-gray-500">
+                <CardContent className="p-6">
+                  <div className="h-6 w-48 bg-gray-200 rounded animate-pulse mb-4" />
+                  <div className="h-4 w-full bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
   }
 
   if (!profile) {
@@ -220,7 +545,7 @@ export const ProfilePage = () => {
                   </div>
                   
                   <div className="flex gap-2">
-                    {isOwnProfile && (
+                    {isOwnProfile ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -229,7 +554,7 @@ export const ProfilePage = () => {
                         <Pencil className="h-4 w-4 mr-2" />
                         Edit Profile
                       </Button>
-                    )}
+                    ) : getConnectionButton()}
                   </div>
                 </div>
 
@@ -259,7 +584,7 @@ export const ProfilePage = () => {
       {/* Stats Section */}
       <div className="container mx-auto px-8 mt-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 gap-6">
             <Card className="border-border border-gray-500">
               <CardContent className="p-6 text-center">
                 <h3 className="text-2xl font-bold">{portfolioItems.length}</h3>
@@ -268,14 +593,14 @@ export const ProfilePage = () => {
             </Card>
             <Card className="border-border border-gray-500">
               <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-semibold">{profile.major}</h3>
-                <p className="text-muted-foreground">Major</p>
-              </CardContent>
-            </Card>
-            <Card className="border-border border-gray-500">
-              <CardContent className="p-6 text-center">
-                <h3 className="text-lg font-semibold">{profile.school_name}</h3>
-                <p className="text-muted-foreground">School</p>
+                <h3 className="text-2xl font-bold">{connectionCount}</h3>
+                <Link 
+                  to={isOwnProfile ? "/connections" : `/profile/${targetUserId}/connections`} 
+                  className="text-muted-foreground hover:text-primary flex items-center justify-center gap-2"
+                >
+                  <Users className="w-4 h-4" />
+                  Connections
+                </Link>
               </CardContent>
             </Card>
           </div>

@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { NotificationBadge } from "@/components/ui/notification-badge"
+import { useNotifications } from "@/contexts/NotificationsContext"
 import {
   Tooltip,
   TooltipContent,
@@ -537,6 +539,8 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
+    showNotificationBadge?: boolean;
+    notificationType?: 'social' | 'messages';
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -546,6 +550,8 @@ const SidebarMenuButton = React.forwardRef<
       variant = "default",
       size = "default",
       tooltip,
+      showNotificationBadge = false,
+      notificationType,
       className,
       ...props
     },
@@ -555,14 +561,19 @@ const SidebarMenuButton = React.forwardRef<
     const { isMobile, state } = useSidebar()
 
     const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      />
+      <div className="relative">
+        <Comp
+          ref={ref}
+          data-sidebar="menu-button"
+          data-size={size}
+          data-active={isActive}
+          className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+          {...props}
+        />
+        {showNotificationBadge && notificationType && (
+          <NotificationBadge type={notificationType} />
+        )}
+      </div>
     )
 
     if (!tooltip) {

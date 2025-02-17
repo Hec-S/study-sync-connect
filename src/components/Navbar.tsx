@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { NotificationBadge } from "@/components/ui/notification-badge";
 import { User } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { AuthDialog } from "./auth/AuthDialog";
+import { AuthDialog } from "@/components/auth/AuthDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,6 +57,12 @@ export const Navbar = () => {
                 <div className="flex items-center gap-2">
                   <Button variant="outline" asChild>
                     <Link to="/portfolio">My Portfolio</Link>
+                  </Button>
+                  <Button variant="outline" asChild className="relative">
+                    <Link to="/connections">
+                      Social
+                      <NotificationBadge type="social" />
+                    </Link>
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/profile">My Profile</Link>

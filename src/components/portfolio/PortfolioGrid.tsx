@@ -19,11 +19,7 @@ export const PortfolioGrid = ({
   currentUser,
 }: PortfolioGridProps) => {
   return (
-    <div
-      className={`grid grid-cols-3 gap-4 ${
-        !isGridView ? "grid-cols-1" : ""
-      }`}
-    >
+    <div className="grid gap-4">
       {items.map((item) => (
         <PortfolioCard
           key={item.id}

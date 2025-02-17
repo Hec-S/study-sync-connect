@@ -31,20 +31,57 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleAuthError = async (error: Error) => {
+    console.error('Auth error:', error);
+    if (error.message.includes('Invalid Refresh Token') || 
+        error.message.includes('Refresh Token Not Found')) {
+      // Clear local storage and state
+      localStorage.clear();
+      setUser(null);
+      setError('Session expired. Please sign in again.');
+      // Force reload to clear any cached state
+      window.location.href = '/';
+    }
+  };
+
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        // Check active sessions and sets the user
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          throw sessionError;
+        }
 
-    // Listen for changes on auth state (signed in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+        setUser(session?.user ?? null);
+        
+        // Listen for changes on auth state (signed in, signed out, etc.)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+          console.log('Auth state changed:', event);
+          if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
+          }
+          if (event === 'SIGNED_OUT') {
+            localStorage.clear();
+          }
+          setUser(session?.user ?? null);
+          setLoading(false);
+        });
 
-    return () => subscription.unsubscribe();
+        return () => {
+          subscription.unsubscribe();
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          handleAuthError(error);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const signUp = async (email: string, password: string, profile: {
@@ -124,6 +161,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
     setLoading(true);
     try {
+      // Clear any existing session data
+      localStorage.clear();
       // Attempt sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
@@ -138,6 +177,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
         console.error("Session error details:", JSON.stringify(sessionError, null, 2));
+        handleAuthError(sessionError);
         throw new Error(sessionError.message);
       }
       if (!session) {
