@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import Index from "./pages/Index";
@@ -30,8 +31,7 @@ const App = () => {
           <TooltipProvider>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/portfolio" element={<PortfolioPage />} />
-              <Route path="/portfolio/:userId" element={<PortfolioPage />} />
+              <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
               <Route path="/project/:projectId" element={<ProjectDetails />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
               <Route path="/profile" element={<ProfilePage />} />

@@ -24,7 +24,6 @@ export type PortfolioItem = {
 };
 
 export const PortfolioPage = () => {
-  const { userId } = useParams();
   const [isGridView, setIsGridView] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [items, setItems] = useState<PortfolioItem[]>([]);
@@ -32,25 +31,20 @@ export const PortfolioPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Determine if viewing own portfolio
-  const isOwnPortfolio = !userId || (user && userId === user.id);
-
   useEffect(() => {
-    fetchItems();
-  }, [userId, user]);
+    if (user) {
+      fetchItems();
+    }
+  }, [user]);
 
   const fetchItems = async () => {
+    if (!user) return;
+
     try {
-      const query = supabase
+      const { data, error } = await supabase
         .from('portfolio_items')
-        .select('*');
-      
-      // Only filter by user ID if one is provided
-      if (userId) {
-        query.eq('owner_id', userId);
-      }
-      
-      const { data, error } = await query
+        .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -166,7 +160,7 @@ export const PortfolioPage = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl md:text-3xl font-bold">
-                    {isOwnPortfolio ? "My Portfolio" : "Portfolio"}
+                    My Portfolio
                   </h1>
                   <Button
                     variant="ghost"
@@ -174,19 +168,16 @@ export const PortfolioPage = () => {
                     asChild
                     className="rounded-full"
                   >
-                    <Link to={`/profile${userId ? `/${userId}` : ''}`}>
+                    <Link to="/profile">
                       <User className="h-5 w-5" />
                     </Link>
                   </Button>
                 </div>
                 <p className="text-muted-foreground">
-                  {isOwnPortfolio 
-                    ? "Showcase your completed projects" 
-                    : "View completed projects"}
+                  Showcase your completed projects
                 </p>
               </div>
-            {isOwnPortfolio && (
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
               <div className="border rounded-lg p-1 flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -210,7 +201,6 @@ export const PortfolioPage = () => {
                   Add Project
                 </Button>
               </div>
-            )}
           </div>
 
           {isLoading ? (
@@ -223,12 +213,10 @@ export const PortfolioPage = () => {
               <p className="text-muted-foreground mb-4">
                 Add your first project to showcase your work
               </p>
-              {isOwnPortfolio && (
-                <Button onClick={() => setIsDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Your First Project
-                </Button>
-              )}
+              <Button onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Project
+              </Button>
             </div>
           ) : (
             <PortfolioGrid

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, MessageSquare } from "lucide-react";
+import { Calendar, ArrowLeft, MessageSquare, User as UserIcon } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
 
 
 interface BaseProject {
@@ -44,6 +46,7 @@ export const ProjectDetails = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [project, setProject] = useState<ProjectDetails | null>(null);
+  const [ownerProfile, setOwnerProfile] = useState<{ id: string; full_name: string | null } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const handleConnect = () => {
@@ -54,8 +57,8 @@ export const ProjectDetails = () => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        // Try portfolio_items first
-        let { data: portfolioData, error: portfolioError } = await supabase
+        // Fetch project data
+        const { data: portfolioData, error: portfolioError } = await supabase
           .from('portfolio_items')
           .select('*')
           .eq('id', projectId)
@@ -67,6 +70,18 @@ export const ProjectDetails = () => {
 
         if (portfolioData) {
           setProject(portfolioData as PortfolioProject);
+          // Fetch owner profile
+          const { data: ownerData, error: ownerError } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .eq('id', portfolioData.owner_id)
+            .single();
+
+          if (ownerError) {
+            console.error('Owner fetch error:', ownerError);
+          } else {
+            setOwnerProfile(ownerData);
+          }
           setIsLoading(false);
           return;
         }
@@ -85,6 +100,18 @@ export const ProjectDetails = () => {
 
         if (marketplaceData) {
           setProject(marketplaceData as MarketplaceProject);
+          // Fetch owner profile
+          const { data: ownerData, error: ownerError } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .eq('id', marketplaceData.owner_id)
+            .single();
+
+          if (ownerError) {
+            console.error('Owner fetch error:', ownerError);
+          } else {
+            setOwnerProfile(ownerData);
+          }
         } else {
           toast({
             title: "Error",
@@ -152,7 +179,25 @@ export const ProjectDetails = () => {
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <h1 className="text-2xl md:text-3xl font-bold">{project.title}</h1>
-                  <Badge className="mt-2" variant="outline">{project.category}</Badge>
+                  <div className="flex items-center gap-4 mt-2">
+                    <Badge variant="outline">{project.category}</Badge>
+                    {ownerProfile && (
+                      <Link 
+                        to={`/profile/${ownerProfile.id}`}
+                        className="flex items-center gap-2 hover:text-primary transition-colors no-underline"
+                      >
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="text-xs">
+                            {ownerProfile.full_name?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex items-center gap-1.5">
+                          <UserIcon className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">{ownerProfile.full_name || 'Unknown User'}</span>
+                        </div>
+                      </Link>
+                    )}
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   {!isPortfolioProject(project) && (
@@ -180,7 +225,7 @@ export const ProjectDetails = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-4 text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 <span>
                   {isPortfolioProject(project)

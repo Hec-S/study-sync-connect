@@ -1,11 +1,14 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { MessageDialog } from "@/components/profile/MessageDialog";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Edit, MessageSquare } from "lucide-react";
+import { Calendar, Edit, MessageSquare, User as UserIcon } from "lucide-react";
 import { MarketplaceProject } from "./MarketplacePage";
 import { User } from "@supabase/supabase-js";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface MarketplaceProjectCardProps {
   project: MarketplaceProject;
@@ -22,6 +25,7 @@ export const MarketplaceProjectCard = ({
   isOwner,
   currentUser,
 }: MarketplaceProjectCardProps) => {
+  const { toast } = useToast();
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
       'Finance': 'bg-emerald-100 text-emerald-800 border-emerald-200',
@@ -48,11 +52,31 @@ export const MarketplaceProjectCard = ({
     }
   };
 
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+
   const handleConnect = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Connect functionality will be implemented later
-    console.log("Connect clicked for project:", project.id);
+    
+    if (!currentUser) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be signed in to message others",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (project.owner_id === currentUser.id) {
+      toast({
+        title: "Error",
+        description: "You cannot message yourself",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setShowMessageDialog(true);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -61,66 +85,83 @@ export const MarketplaceProjectCard = ({
     onUpdate(project.id, project);
   };
 
+  const navigate = useNavigate();
+
   return (
-    <Link to={`/project/${project.id}`} className="block no-underline">
-      <Card className="group w-full transition-all duration-300 hover:shadow-lg hover:border-primary/20 cursor-pointer bg-white border-border border-gray-200 hover:scale-[1.02] overflow-hidden">
-        <div className="flex flex-col md:flex-row gap-6 p-6 lg:p-8 relative min-h-[200px]">
-          <div className="flex-1 space-y-4 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <CardTitle className="text-lg md:text-xl font-bold group-hover:text-primary transition-colors">
-                  {project.title}
-                </CardTitle>
-                <div className="text-base font-semibold text-primary">
-                  {project.budget_range}
-                </div>
+    <Card 
+      className="group w-full transition-all duration-300 hover:shadow-lg hover:border-primary/20 cursor-pointer bg-white border-border border-gray-200 hover:scale-[1.02] overflow-hidden"
+      onClick={() => navigate(`/project/${project.id}`)}
+    >
+      <div className="flex flex-col md:flex-row gap-6 p-6 lg:p-8 relative min-h-[200px]">
+        <div className="flex-1 space-y-4 min-w-0">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <CardTitle className="text-lg md:text-xl font-bold group-hover:text-primary transition-colors">
+                {project.title}
+              </CardTitle>
+              <div className="text-base font-semibold text-primary">
+                {project.budget_range}
               </div>
-              {isOwner && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100/80"
-                  onClick={handleEdit}
-                  onMouseDown={(e) => e.preventDefault()}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              )}
             </div>
-
-            <div className="space-y-3">
-              <div className="flex flex-wrap gap-2 items-center">
-                <Badge 
-                  variant="outline"
-                  className={`${getStatusColor(project.status)} border shadow-sm`}
-                >
-                  {project.status.replace("_", " ")}
-                </Badge>
-              </div>
-
-              <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">{project.description}</p>
-            </div>
+            {isOwner && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-gray-100/80"
+                onClick={handleEdit}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+            )}
           </div>
 
-          <div className="flex flex-col justify-between gap-4 md:w-48 md:border-l md:pl-6 lg:pl-8 md:py-2">
-            {project.owner_name && (
-              <div className="text-blue-600 font-medium text-center">
-                {project.owner_name}
-              </div>
-            )}
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2 items-center">
+              <Badge 
+                variant="outline"
+                className={`${getStatusColor(project.status)} border shadow-sm`}
+              >
+                {project.status.replace("_", " ")}
+              </Badge>
+            </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>
-                  Due {new Date(project.deadline).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
+            <p className="text-muted-foreground line-clamp-2 text-sm leading-relaxed">{project.description}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between gap-4 md:w-48 md:border-l md:pl-6 lg:pl-8 md:py-2">
+          {project.owner_name && (
+            <Link 
+              to={`/profile/${project.owner_id}`}
+              className="flex items-center gap-2 hover:text-primary transition-colors no-underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Avatar className="h-6 w-6">
+                <AvatarFallback className="text-xs">
+                  {project.owner_name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex items-center gap-1.5">
+                <UserIcon className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{project.owner_name}</span>
               </div>
-              
+            </Link>
+          )}
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>
+                Due {new Date(project.deadline).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+            </div>
+            
+            {!isOwner && (
               <Button
                 variant="default"
                 className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg"
@@ -130,10 +171,18 @@ export const MarketplaceProjectCard = ({
                 <MessageSquare className="h-5 w-5 mr-2" />
                 Connect
               </Button>
-            </div>
+            )}
           </div>
         </div>
-      </Card>
-    </Link>
+      </div>
+      {showMessageDialog && (
+        <MessageDialog
+          open={showMessageDialog}
+          onOpenChange={setShowMessageDialog}
+          receiverId={project.owner_id}
+          receiverName={project.owner_name || "Project Owner"}
+        />
+      )}
+    </Card>
   );
 };

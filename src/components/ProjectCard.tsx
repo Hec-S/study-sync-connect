@@ -1,5 +1,6 @@
 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageDialog } from "@/components/profile/MessageDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, MessageSquare, ArrowRight, Bookmark } from "lucide-react";
@@ -38,14 +39,16 @@ export const ProjectCard = ({ title, description, category, deadline, skills, ow
 
   const truncatedDescription = isExpanded ? description : description.slice(0, 100) + (description.length > 100 ? "..." : "");
 
-  const handleConnect = async (e: React.MouseEvent) => {
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+
+  const handleConnect = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!user) {
       toast({
         title: "Please sign in",
-        description: "You need to be signed in to connect with others",
+        description: "You need to be signed in to message others",
         variant: "destructive",
       });
       return;
@@ -63,58 +66,13 @@ export const ProjectCard = ({ title, description, category, deadline, skills, ow
     if (ownerId === user.id) {
       toast({
         title: "Error",
-        description: "You cannot connect with yourself",
+        description: "You cannot message yourself",
         variant: "destructive",
       });
       return;
     }
 
-    setIsConnecting(true);
-    try {
-      // Check if already connected
-      const { data: existingConnection } = await supabase
-        .from('connections')
-        .select('*')
-        .or(`and(requester_id.eq.${user.id},receiver_id.eq.${ownerId}),and(requester_id.eq.${ownerId},receiver_id.eq.${user.id})`)
-        .single();
-
-      if (existingConnection) {
-        // If connected, navigate to messages
-        navigate(`/connections?tab=messages&userId=${ownerId}`);
-        return;
-      }
-
-      // If not connected, create connection request
-      const { error: connectionError } = await supabase
-        .from('connections')
-        .insert([
-          {
-            requester_id: user.id,
-            receiver_id: ownerId,
-            status: 'pending'
-          }
-        ]);
-
-      if (connectionError) throw connectionError;
-
-      toast({
-        title: "Connection request sent",
-        description: "The user will be notified of your request",
-      });
-
-      // Navigate to connections page
-      navigate('/connections');
-
-    } catch (error) {
-      console.error('Error connecting:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send connection request",
-        variant: "destructive",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
+    setShowMessageDialog(true);
   };
 
   return (
@@ -179,6 +137,14 @@ export const ProjectCard = ({ title, description, category, deadline, skills, ow
         </Button>
       </CardFooter>
       </Card>
+      {showMessageDialog && (
+        <MessageDialog
+          open={showMessageDialog}
+          onOpenChange={setShowMessageDialog}
+          receiverId={ownerId}
+          receiverName="Project Owner"
+        />
+      )}
     </Link>
   );
 };

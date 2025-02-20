@@ -187,6 +187,7 @@ export type Database = {
           major: string | null
           school_name: string | null
           updated_at: string
+          avatar_url: string | null
         }
         Insert: {
           created_at?: string
@@ -197,6 +198,7 @@ export type Database = {
           major?: string | null
           school_name?: string | null
           updated_at?: string
+          avatar_url?: string | null
         }
         Update: {
           created_at?: string
@@ -207,6 +209,7 @@ export type Database = {
           major?: string | null
           school_name?: string | null
           updated_at?: string
+          avatar_url?: string | null
         }
         Relationships: []
       }

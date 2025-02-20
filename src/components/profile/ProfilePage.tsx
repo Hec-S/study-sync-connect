@@ -18,11 +18,13 @@ import {
   UserCheck,
   Clock,
   UserX,
-  Users
+  Users,
+  MessageSquare
 } from "lucide-react";
-import type { Connection, ConnectionStatus } from "@/integrations/supabase/types";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { Database } from "@/integrations/supabase/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileDialog } from "./ProfileDialog";
+import { MessageDialog } from "./MessageDialog";
 import { PortfolioGrid } from "../portfolio/PortfolioGrid";
 import type { PortfolioItem } from "../portfolio/PortfolioPage";
 
@@ -33,7 +35,10 @@ type Profile = {
   graduation_year: number | null;
   description: string | null;
   school_name: string | null;
+  avatar_url: string | null;
 };
+
+type ConnectionStatus = Database["public"]["Enums"]["connection_status"];
 
 type ConnectionState = {
   status: ConnectionStatus | null;
@@ -50,10 +55,12 @@ export const ProfilePage = () => {
   const { userId } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+  const [isPortfolioLoading, setIsPortfolioLoading] = useState(true);
   const [workOpportunities, setWorkOpportunities] = useState<MarketplaceProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [connectionCount, setConnectionCount] = useState<number>(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -65,11 +72,13 @@ export const ProfilePage = () => {
     if (targetUserId) {
       Promise.all([
         fetchProfile(),
-        fetchPortfolioItems(),
         fetchWorkOpportunities(),
         fetchConnectionStatus(),
         fetchConnectionCount()
       ]).finally(() => setIsLoading(false));
+
+      // Fetch portfolio items separately to not block the main profile load
+      fetchPortfolioItems();
     }
   }, [targetUserId]);
 
@@ -326,7 +335,12 @@ export const ProfilePage = () => {
         throw error;
       }
 
-      setProfile(data);
+      // Transform the data to match our Profile type
+      setProfile({
+        ...data,
+        description: data.Description,
+        avatar_url: data.avatar_url || null,
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast({
@@ -363,7 +377,10 @@ export const ProfilePage = () => {
   };
 
   const fetchPortfolioItems = async () => {
+    if (!targetUserId) return;
+
     try {
+      setIsPortfolioLoading(true);
       const { data, error } = await supabase
         .from('portfolio_items')
         .select('*')
@@ -379,6 +396,8 @@ export const ProfilePage = () => {
         description: "Failed to load portfolio items",
         variant: "destructive",
       });
+    } finally {
+      setIsPortfolioLoading(false);
     }
   };
 
@@ -393,16 +412,27 @@ export const ProfilePage = () => {
     }
 
     try {
+      // Transform the profile data to match database column names
+      const { description, avatar_url, ...rest } = updatedProfile;
       const { data, error } = await supabase
         .from('profiles')
-        .update(updatedProfile)
+        .update({
+          ...rest,
+          Description: description,
+          avatar_url: avatar_url
+        })
         .eq('id', user.id)
         .select()
         .single();
 
       if (error) throw error;
 
-      setProfile(data);
+      // Transform the data to match our Profile type
+      setProfile({
+        ...data,
+        description: data.Description,
+        avatar_url: data.avatar_url || null,
+      });
       setIsDialogOpen(false);
       toast({
         title: "Success",
@@ -521,6 +551,9 @@ export const ProfilePage = () => {
             <div className="flex flex-row items-start gap-8 p-8">
               {/* Avatar */}
               <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
+                {profile.avatar_url && (
+                  <AvatarImage src={profile.avatar_url} alt={profile.full_name || "Profile"} />
+                )}
                 <AvatarFallback className="text-2xl">
                   {profile.full_name?.charAt(0)}
                 </AvatarFallback>
@@ -554,18 +587,27 @@ export const ProfilePage = () => {
                         <Pencil className="h-4 w-4 mr-2" />
                         Edit Profile
                       </Button>
-                    ) : getConnectionButton()}
+                    ) : (
+                      <>
+                        {getConnectionButton()}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsMessageDialogOpen(true)}
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Message
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Description */}
                 {profile.description ? (
-                  <div className="relative pl-8">
-                    <Quote className="absolute -left-1 top-0 w-6 h-6 text-muted-foreground/20" />
-                    <p className="text-muted-foreground">
-                      {profile.description}
-                    </p>
-                  </div>
+                  <p className="text-muted-foreground">
+                    {profile.description}
+                  </p>
                 ) : isOwnProfile ? (
                   <Button
                     variant="ghost"
@@ -619,7 +661,15 @@ export const ProfilePage = () => {
             </div>
           </div>
 
-          {portfolioItems.length === 0 ? (
+          {isPortfolioLoading ? (
+            <Card className="border-border border-gray-500">
+              <CardContent className="p-12">
+                <div className="flex justify-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : portfolioItems.length === 0 ? (
             <Card className="border-border border-gray-500">
               <CardContent className="p-12 text-center">
                 <h3 className="text-lg font-semibold mb-2">No Projects Yet</h3>
@@ -631,7 +681,7 @@ export const ProfilePage = () => {
                 {isOwnProfile && (
                   <Button asChild>
                     <Link to="/portfolio">
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className="h-4 w-4 mr-2" />
                       Add Your First Project
                     </Link>
                   </Button>
@@ -639,13 +689,25 @@ export const ProfilePage = () => {
               </CardContent>
             </Card>
           ) : (
-            <PortfolioGrid
-              items={portfolioItems}
-              isGridView={true}
-              onUpdate={() => fetchPortfolioItems()}
-              onDelete={() => fetchPortfolioItems()}
-              currentUser={user}
-            />
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                {isOwnProfile && (
+                  <Button asChild className="ml-auto">
+                    <Link to="/portfolio">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Project
+                    </Link>
+                  </Button>
+                )}
+              </div>
+              <PortfolioGrid
+                items={portfolioItems}
+                isGridView={true}
+                onUpdate={() => fetchPortfolioItems()}
+                onDelete={() => fetchPortfolioItems()}
+                currentUser={user}
+              />
+            </div>
           )}
         </div>
       </div>
@@ -689,6 +751,13 @@ export const ProfilePage = () => {
         onOpenChange={setIsDialogOpen}
         profile={profile}
         onSubmit={handleUpdateProfile}
+      />
+
+      <MessageDialog
+        open={isMessageDialogOpen}
+        onOpenChange={setIsMessageDialogOpen}
+        receiverId={targetUserId || ""}
+        receiverName={profile.full_name || "User"}
       />
     </div>
   );
