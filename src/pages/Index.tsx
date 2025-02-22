@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -62,7 +63,6 @@ const Index = () => {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['marketplace_projects'],
     queryFn: async () => {
-      // First get all projects
       const { data: projects, error: projectsError } = await supabase
         .from('marketplace_projects')
         .select('*')
@@ -71,7 +71,6 @@ const Index = () => {
 
       if (projectsError) throw projectsError;
 
-      // Then get all profiles for the project owners
       const ownerIds = [...new Set((projects || []).map(p => p.owner_id))];
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
@@ -80,13 +79,11 @@ const Index = () => {
 
       if (profilesError) throw profilesError;
 
-      // Create a map of owner_id to full_name
       const ownerNames = (profiles || []).reduce((acc, profile) => ({
         ...acc,
         [profile.id]: profile.full_name
       }), {} as Record<string, string | null>);
 
-      // Combine the data
       const projectsWithOwnerNames = (projects || []).map(project => ({
         ...project,
         owner_name: ownerNames[project.owner_id] || null
@@ -95,6 +92,7 @@ const Index = () => {
       return projectsWithOwnerNames as MarketplaceProject[];
     },
   });
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
@@ -151,19 +149,6 @@ const Index = () => {
               )}
             </div>
           </div>
-
-          {/* Categories */}
-          <div className="flex flex-wrap justify-center gap-2 md:gap-3 max-w-2xl mx-auto mb-16 px-4 md:px-0">
-            {['Design', 'Development', 'Research', 'Marketing', 'Writing', 'Data Science'].map((category) => (
-              <Button
-                key={category}
-                variant="outline"
-                className="text-sm md:text-base bg-white hover:bg-blue-50 transition-colors"
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
         </div>
 
         {/* Latest Projects Section */}
@@ -211,7 +196,6 @@ const Index = () => {
             />
           )}
         </section>
-
       </main>
     </div>
   );
