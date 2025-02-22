@@ -98,7 +98,6 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fadeIn">
-          {/* Hero Section */}
           <div className="flex items-center justify-center gap-2 mb-6">
             <h1 className="text-3xl md:text-5xl font-bold text-primary">
               Campus Connect
@@ -110,7 +109,6 @@ const Index = () => {
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
 
-          {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 px-4 md:px-0">
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
@@ -129,7 +127,6 @@ const Index = () => {
             </div>
           </div>
           
-          {/* Search Section */}
           <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12 px-4 md:px-0">
             <div className="flex-1 relative">
               <Input
@@ -150,46 +147,47 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Quick Access Sections */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1400px] mx-auto mb-12">
-          {/* Professor Rating Section */}
           <div 
             onClick={() => navigate('/professor-rating')}
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+            className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-semibold">Professor Rating</h3>
-              <p className="text-gray-600">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
+            <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
+              <GraduationCap className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
+              <div className="space-y-4 flex-1 flex flex-col justify-center">
+                <h3 className="text-2xl font-semibold">Professor Rating</h3>
+                <p className="text-gray-600">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
+              </div>
             </div>
           </div>
 
-          {/* Work Hub Section */}
           <div 
             onClick={() => navigate('/marketplace')}
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+            className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-semibold">Work Hub</h3>
-              <p className="text-gray-600">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
+            <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
+              <Sparkles className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
+              <div className="space-y-4 flex-1 flex flex-col justify-center">
+                <h3 className="text-2xl font-semibold">Work Hub</h3>
+                <p className="text-gray-600">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
+              </div>
             </div>
           </div>
 
-          {/* My Portfolio Section */}
           <div 
             onClick={() => navigate('/portfolio')}
-            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+            className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
-              <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
-              <h3 className="text-xl font-semibold">My Portfolio</h3>
-              <p className="text-gray-600">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
+            <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
+              <Users className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
+              <div className="space-y-4 flex-1 flex flex-col justify-center">
+                <h3 className="text-2xl font-semibold">My Portfolio</h3>
+                <p className="text-gray-600">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Latest Projects Section */}
         <section className="mb-20 bg-gradient-to-b from-white/50 to-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border border-gray-100/50">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 border-b border-gray-100">
             <div className="space-y-2">
