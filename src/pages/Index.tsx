@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -21,6 +20,21 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handlePortfolioClick = () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You need to be signed in to access your portfolio",
+        variant: "destructive"
+      });
+    } else {
+      navigate('/portfolio');
+    }
+  };
 
   useEffect(() => {
     const searchUsers = async () => {
@@ -52,9 +66,6 @@ const Index = () => {
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
 
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['marketplace_projects'],
@@ -123,7 +134,7 @@ const Index = () => {
               <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
             <div 
-              onClick={() => navigate('/portfolio')}
+              onClick={handlePortfolioClick}
               className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer hover:scale-105 transition-transform duration-200"
             >
               <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
