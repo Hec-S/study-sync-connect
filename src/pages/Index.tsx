@@ -9,15 +9,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Sparkles, GraduationCap, Users, MessageSquare } from "lucide-react";
+import { Search, Sparkles, GraduationCap, Users } from "lucide-react";
 import { SearchResults } from "@/components/search/SearchResults";
 import { Database } from "@/integrations/supabase/types";
+
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+
   useEffect(() => {
     const searchUsers = async () => {
       if (!searchQuery.trim()) {
@@ -47,6 +50,7 @@ const Index = () => {
     const debounceTimeout = setTimeout(searchUsers, 300);
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
+
   const navigate = useNavigate();
   const {
     user
@@ -85,6 +89,7 @@ const Index = () => {
       return projectsWithOwnerNames as MarketplaceProject[];
     }
   });
+
   return <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Navbar />
       
@@ -115,7 +120,7 @@ const Index = () => {
               <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
-              <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
+              <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">My Portfolio</h3>
               <p className="text-gray-600 text-xs md:text-sm">Showcase your work and track your progress</p>
             </div>
@@ -196,4 +201,5 @@ const Index = () => {
       </main>
     </div>;
 };
+
 export default Index;
