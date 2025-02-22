@@ -119,7 +119,7 @@ const Index = () => {
                 <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">Professor Rating</h3>
-                  <p className="text-gray-600 text-sm">Rate and review your professors. See what other students think about their teaching style and course content.</p>
+                  <p className="text-gray-600 text-sm">Rate and read reviews about your professors.</p>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@ const Index = () => {
                 <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">Work Hub</h3>
-                  <p className="text-gray-600 text-sm">Find student projects to join or create your own. Connect with peers and build something amazing together.</p>
+                  <p className="text-gray-600 text-sm">Find projects to join or create your own.</p>
                 </div>
               </div>
             </div>
@@ -141,7 +141,7 @@ const Index = () => {
                 <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">My Portfolio</h3>
-                  <p className="text-gray-600 text-sm">Showcase your projects, skills, and achievements. Build a portfolio that highlights your academic journey.</p>
+                  <p className="text-gray-600 text-sm">Showcase your projects and achievements.</p>
                 </div>
               </div>
             </div>
