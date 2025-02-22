@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -95,7 +94,7 @@ const Index = () => {
           {/* Hero Section */}
           <div className="flex items-center justify-center gap-2 mb-6">
             <h1 className="text-3xl md:text-5xl font-bold text-primary">
-              Im Students
+              ImStudents
             </h1>
             <GraduationCap className="w-8 h-8 md:w-12 md:h-12 text-primary animate-bounce" />
           </div>

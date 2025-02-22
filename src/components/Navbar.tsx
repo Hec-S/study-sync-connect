@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 export const Navbar = () => {
   const navigate = useNavigate();
   const {
@@ -16,6 +18,7 @@ export const Navbar = () => {
     error: authError
   } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
+
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
@@ -31,10 +34,11 @@ export const Navbar = () => {
       setIsSigningOut(false);
     }
   };
+
   return <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl md:text-2xl font-bold text-primary">Im Students</Link>
+          <Link to="/" className="text-xl md:text-2xl font-bold text-primary">ImStudents</Link>
           
           <div className="flex items-center gap-2 md:gap-4">
             <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate('/marketplace')}>
