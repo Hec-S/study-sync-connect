@@ -151,6 +151,45 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Quick Access Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1400px] mx-auto mb-12">
+          {/* Professor Rating Section */}
+          <div 
+            onClick={() => navigate('/professor-rating')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold">Professor Rating</h3>
+              <p className="text-gray-600">Rate and review your professors to help other students</p>
+            </div>
+          </div>
+
+          {/* Work Hub Section */}
+          <div 
+            onClick={() => navigate('/marketplace')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold">Work Hub</h3>
+              <p className="text-gray-600">Find projects and collaborate with fellow students</p>
+            </div>
+          </div>
+
+          {/* My Portfolio Section */}
+          <div 
+            onClick={() => navigate('/portfolio')}
+            className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl font-semibold">My Portfolio</h3>
+              <p className="text-gray-600">Showcase your work and track your progress</p>
+            </div>
+          </div>
+        </div>
+
         {/* Latest Projects Section */}
         <section className="mb-20 bg-gradient-to-b from-white/50 to-white/80 backdrop-blur-lg rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border border-gray-100/50">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 border-b border-gray-100">
