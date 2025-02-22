@@ -107,17 +107,17 @@ const Index = () => {
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">Professor Rating</h3>
-              <p className="text-gray-600 text-xs md:text-sm">Connect with skilled students who share your interests</p>
+              <p className="text-gray-600 text-xs md:text-sm">Rate and review your professors to help other students</p>
             </div>
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
-              <h3 className="font-semibold text-base md:text-lg mb-2">Share Projects</h3>
-              <p className="text-gray-600 text-xs md:text-sm">Post your project ideas and find the perfect team</p>
+              <h3 className="font-semibold text-base md:text-lg mb-2">Work Hub</h3>
+              <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
             <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
               <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
-              <h3 className="font-semibold text-base md:text-lg mb-2">Collaborate</h3>
-              <p className="text-gray-600 text-xs md:text-sm">Connect directly with fellow students to collaborate on projects together</p>
+              <h3 className="font-semibold text-base md:text-lg mb-2">My Portfolio</h3>
+              <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
           </div>
           
