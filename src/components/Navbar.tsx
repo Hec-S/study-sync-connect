@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -7,25 +6,22 @@ import { NotificationBadge } from "@/components/ui/notification-badge";
 import { User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthDialog } from "@/components/auth/AuthDialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
 export const Navbar = () => {
   const navigate = useNavigate();
-  const { user, signOut, error: authError } = useAuth();
-
+  const {
+    user,
+    signOut,
+    error: authError
+  } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      const { success } = await signOut();
+      const {
+        success
+      } = await signOut();
       if (success) {
         toast.success("Signed out successfully");
       }
@@ -35,35 +31,22 @@ export const Navbar = () => {
       setIsSigningOut(false);
     }
   };
-
-  return (
-    <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
+  return <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl md:text-2xl font-bold text-primary">
-            Campus Connect
-          </Link>
+          <Link to="/" className="text-xl md:text-2xl font-bold text-primary">Im Students</Link>
           
           <div className="flex items-center gap-2 md:gap-4">
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => navigate('/marketplace')}
-            >
+            <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate('/marketplace')}>
               Work Hub
             </Button>
 
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => navigate('/professor-rating')}
-            >
+            <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate('/professor-rating')}>
               Professor Rating
             </Button>
             
             <div className="flex items-center gap-2">
-              {user ? (
-                <div className="flex items-center gap-2">
+              {user ? <div className="flex items-center gap-2">
                   <Button variant="outline" asChild>
                     <Link to="/portfolio">My Portfolio</Link>
                   </Button>
@@ -76,15 +59,11 @@ export const Navbar = () => {
                   <Button variant="outline" asChild>
                     <Link to="/profile">My Profile</Link>
                   </Button>
-                </div>
-              ) : (
-                <Button variant="outline" disabled>
+                </div> : <Button variant="outline" disabled>
                   Portfolio
-                </Button>
-              )}
+                </Button>}
 
-              {user ? (
-                <DropdownMenu>
+              {user ? <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
@@ -112,22 +91,14 @@ export const Navbar = () => {
                       <Link to="/settings">Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-red-600 cursor-pointer disabled:cursor-not-allowed"
-                      disabled={isSigningOut}
-                      onClick={handleSignOut}
-                    >
+                    <DropdownMenuItem className="text-red-600 cursor-pointer disabled:cursor-not-allowed" disabled={isSigningOut} onClick={handleSignOut}>
                       {isSigningOut ? "Signing out..." : "Sign out"}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <AuthDialog />
-              )}
+                </DropdownMenu> : <AuthDialog />}
             </div>
           </div>
         </div>
       </div>
-    </nav>
-  );
+    </nav>;
 };
