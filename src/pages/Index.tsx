@@ -114,34 +114,34 @@ const Index = () => {
           {/* Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {/* Professor Rating Section */}
-            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col">
-              <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
-                <GraduationCap className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
-                <div className="space-y-4 flex-1 flex flex-col justify-center">
-                  <h3 className="text-2xl font-semibold">Professor Rating</h3>
-                  <p className="text-gray-600">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[280px] flex flex-col">
+              <div className="flex flex-col items-center text-center space-y-4 h-full justify-between">
+                <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+                <div className="space-y-3 flex-1 flex flex-col justify-center">
+                  <h3 className="text-xl font-semibold">Professor Rating</h3>
+                  <p className="text-gray-600 text-sm">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
                 </div>
               </div>
             </div>
 
             {/* Work Hub Section */}
-            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col">
-              <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
-                <Sparkles className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
-                <div className="space-y-4 flex-1 flex flex-col justify-center">
-                  <h3 className="text-2xl font-semibold">Work Hub</h3>
-                  <p className="text-gray-600">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[280px] flex flex-col">
+              <div className="flex flex-col items-center text-center space-y-4 h-full justify-between">
+                <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+                <div className="space-y-3 flex-1 flex flex-col justify-center">
+                  <h3 className="text-xl font-semibold">Work Hub</h3>
+                  <p className="text-gray-600 text-sm">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
                 </div>
               </div>
             </div>
 
             {/* My Portfolio Section */}
-            <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[400px] flex flex-col">
-              <div className="flex flex-col items-center text-center space-y-6 h-full justify-between">
-                <Users className="w-16 h-16 text-primary group-hover:scale-110 transition-transform" />
-                <div className="space-y-4 flex-1 flex flex-col justify-center">
-                  <h3 className="text-2xl font-semibold">My Portfolio</h3>
-                  <p className="text-gray-600">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
+            <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 group min-h-[280px] flex flex-col">
+              <div className="flex flex-col items-center text-center space-y-4 h-full justify-between">
+                <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
+                <div className="space-y-3 flex-1 flex flex-col justify-center">
+                  <h3 className="text-xl font-semibold">My Portfolio</h3>
+                  <p className="text-gray-600 text-sm">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
                 </div>
               </div>
             </div>
