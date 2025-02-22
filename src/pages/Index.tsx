@@ -119,7 +119,7 @@ const Index = () => {
                 <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">Professor Rating</h3>
-                  <p className="text-gray-600 text-sm">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
+                  <p className="text-gray-600 text-sm">Rate and review your professors. See what other students think about their teaching style and course content.</p>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@ const Index = () => {
                 <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">Work Hub</h3>
-                  <p className="text-gray-600 text-sm">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
+                  <p className="text-gray-600 text-sm">Find student projects to join or create your own. Connect with peers and build something amazing together.</p>
                 </div>
               </div>
             </div>
@@ -141,7 +141,7 @@ const Index = () => {
                 <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
                 <div className="space-y-3 flex-1 flex flex-col justify-center">
                   <h3 className="text-xl font-semibold">My Portfolio</h3>
-                  <p className="text-gray-600 text-sm">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
+                  <p className="text-gray-600 text-sm">Showcase your projects, skills, and achievements. Build a portfolio that highlights your academic journey.</p>
                 </div>
               </div>
             </div>
