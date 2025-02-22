@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -109,17 +110,26 @@ const Index = () => {
 
           {/* Feature Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 px-4 md:px-0">
-            <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div 
+              onClick={() => navigate('/professor-rating')}
+              className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer hover:scale-105 transition-transform duration-200"
+            >
               <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">Professor Rating</h3>
               <p className="text-gray-600 text-xs md:text-sm">Rate and review your professors to help other students</p>
             </div>
-            <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div 
+              onClick={() => navigate('/marketplace')}
+              className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer hover:scale-105 transition-transform duration-200"
+            >
               <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">Work Hub</h3>
               <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
-            <div className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100">
+            <div 
+              onClick={() => navigate('/portfolio')}
+              className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer hover:scale-105 transition-transform duration-200"
+            >
               <Users className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />
               <h3 className="font-semibold text-base md:text-lg mb-2">My Portfolio</h3>
               <p className="text-gray-600 text-xs md:text-sm">Showcase your work and track your progress</p>
