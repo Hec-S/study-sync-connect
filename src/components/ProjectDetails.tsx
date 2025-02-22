@@ -120,7 +120,7 @@ export const ProjectDetails = () => {
           });
           navigate(-1);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching project:', error);
         toast({
           title: "Error",

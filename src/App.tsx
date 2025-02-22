@@ -12,6 +12,7 @@ import { ProjectDetails } from "@/components/ProjectDetails";
 import { MarketplacePage } from "@/components/marketplace/MarketplacePage";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { ConnectionsPage } from "@/components/connections/ConnectionsPage";
+import { ProfessorRatingPage } from "@/components/professor/ProfessorRatingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/connections" element={<ConnectionsPage />} />
               <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
+              <Route path="/professor-rating" element={<ProfessorRatingPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             <Toaster />

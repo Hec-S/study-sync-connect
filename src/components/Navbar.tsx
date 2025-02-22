@@ -52,6 +52,14 @@ export const Navbar = () => {
             >
               Work Hub
             </Button>
+
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => navigate('/professor-rating')}
+            >
+              Professor Rating
+            </Button>
             
             <div className="flex items-center gap-2">
               {user ? (
@@ -62,7 +70,7 @@ export const Navbar = () => {
                   <Button variant="outline" asChild className="relative">
                     <Link to="/connections">
                       Social
-                      <NotificationBadge type="connections" />
+                      <NotificationBadge type="social" />
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>

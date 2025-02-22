@@ -31,8 +31,8 @@ A platform for students to connect, collaborate on projects, and build their por
 
 1. Clone the repository
 ```sh
-git clone <repository-url>
-cd study-sync-connect-1
+git clone https://github.com/Hec-S/study-sync-connect.git
+cd study-sync-connect
 ```
 
 2. Install dependencies
@@ -46,6 +46,7 @@ npm install
   ```
   VITE_SUPABASE_URL=your_supabase_project_url
   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+  SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
   ```
 
 4. Start the development server
