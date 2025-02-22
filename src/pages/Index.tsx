@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -161,7 +160,7 @@ const Index = () => {
             <div className="flex flex-col items-center text-center space-y-4">
               <GraduationCap className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-semibold">Professor Rating</h3>
-              <p className="text-gray-600">Rate and review your professors to help other students</p>
+              <p className="text-gray-600">Get insights about professors from fellow students' experiences. Read reviews, ratings, and leave your own feedback to help others make informed decisions about their courses.</p>
             </div>
           </div>
 
@@ -173,7 +172,7 @@ const Index = () => {
             <div className="flex flex-col items-center text-center space-y-4">
               <Sparkles className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-semibold">Work Hub</h3>
-              <p className="text-gray-600">Find projects and collaborate with fellow students</p>
+              <p className="text-gray-600">Discover student projects, join teams, or start your own. Browse opportunities across various fields, from coding to design, and connect with peers who share your interests.</p>
             </div>
           </div>
 
@@ -185,7 +184,7 @@ const Index = () => {
             <div className="flex flex-col items-center text-center space-y-4">
               <Users className="w-12 h-12 text-primary group-hover:scale-110 transition-transform" />
               <h3 className="text-xl font-semibold">My Portfolio</h3>
-              <p className="text-gray-600">Showcase your work and track your progress</p>
+              <p className="text-gray-600">Build and showcase your academic journey. Add projects, highlight skills, and track your achievements. Create a professional profile that stands out to potential collaborators.</p>
             </div>
           </div>
         </div>
