@@ -29,25 +29,25 @@
 
   /* UTEP Theme */
   [data-theme="UTEP"] {
-    --background: 213 100% 18%;
+    --background: 213 100% 13%;
     --foreground: 0 0% 100%;
-    --card: 213 100% 18%;
+    --card: 213 100% 13%;
     --card-foreground: 0 0% 100%;
-    --popover: 213 100% 18%;
+    --popover: 213 100% 13%;
     --popover-foreground: 0 0% 100%;
-    --primary: 24 100% 60%;
+    --primary: 28 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 24 100% 60%;
-    --accent-foreground: 210 40% 98%;
+    --secondary: 210 11% 70%;
+    --secondary-foreground: 213 100% 13%;
+    --muted: 213 30% 20%;
+    --muted-foreground: 210 11% 70%;
+    --accent: 28 100% 50%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 24 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 213 30% 20%;
+    --input: 213 30% 20%;
+    --ring: 28 100% 50%;
   }
 }
 
@@ -57,5 +57,26 @@
   }
   body {
     @apply bg-background text-foreground transition-colors duration-300;
+  }
+
+  [data-theme="UTEP"] .nav-button {
+    @apply border-[#B1B3B3]/30 text-[#B1B3B3] hover:text-[#FF8200] hover:border-[#FF8200]/50 transition-all;
+  }
+
+  [data-theme="UTEP"] .feature-card {
+    @apply bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50 backdrop-blur-lg 
+    hover:shadow-lg hover:shadow-[#FF8200]/10 transition-all duration-300;
+  }
+
+  [data-theme="UTEP"] .feature-icon {
+    @apply text-[#FF8200];
+  }
+
+  [data-theme="UTEP"] .feature-title {
+    @apply text-white mb-2;
+  }
+
+  [data-theme="UTEP"] .feature-description {
+    @apply text-[#B1B3B3];
   }
 }
