@@ -25,15 +25,15 @@ const Index = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handlePortfolioClick = () => {
+  const handleAssistantClick = () => {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "You need to be signed in to access your portfolio",
+        description: "You need to be signed in to access the UTEP Assistant",
         variant: "destructive"
       });
     } else {
-      navigate('/portfolio');
+      navigate('/utep-assistant');
     }
   };
 
@@ -135,7 +135,7 @@ const Index = () => {
               <p className="text-gray-600 text-xs md:text-sm">Find projects and collaborate with fellow students</p>
             </div>
             <div 
-              onClick={() => navigate('/utep-assistant')}
+              onClick={handleAssistantClick}
               className="p-4 md:p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 cursor-pointer hover:scale-105 transition-transform duration-200"
             >
               <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary mx-auto mb-3 md:mb-4" />

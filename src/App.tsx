@@ -42,7 +42,7 @@ const App = () => {
                 <Route path="/connections" element={<ConnectionsPage />} />
                 <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
                 <Route path="/professor-rating" element={<ProfessorRatingPage />} />
-                <Route path="/utep-assistant" element={<UtepAssistantPage />} />
+                <Route path="/utep-assistant" element={<ProtectedRoute><UtepAssistantPage /></ProtectedRoute>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
               <Toaster />
