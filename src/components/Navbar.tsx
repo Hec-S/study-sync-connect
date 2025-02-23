@@ -36,10 +36,10 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="border-b border-white/10 bg-[#041E42] backdrop-blur-md sticky top-0 z-50">
+    <nav className={`border-b sticky top-0 z-50 ${user ? 'border-white/10 bg-[#041E42]' : 'bg-background border-border'} backdrop-blur-md`}>
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl md:text-2xl font-bold text-[#FF8200]">
+          <Link to="/" className={`text-xl md:text-2xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
             ImStudents
           </Link>
           
@@ -61,7 +61,7 @@ export const Navbar = () => {
                   </Button>
                 </div>
               ) : (
-                <Button variant="outline" disabled className="text-[#B1B3B3]/60">
+                <Button variant="outline" disabled className="text-muted-foreground">
                   Portfolio
                 </Button>
               )}

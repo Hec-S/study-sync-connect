@@ -31,14 +31,19 @@ const AppContent = () => {
   const { user } = useAuth();
   
   useEffect(() => {
-    // Get school from user metadata
-    const userSchool = user?.user_metadata?.school_name || 'default';
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', userSchool);
+    if (user) {
+      // Get school from user metadata
+      const userSchool = user?.user_metadata?.school_name || 'default';
+      // Apply theme to document
+      document.documentElement.setAttribute('data-theme', userSchool);
+    } else {
+      // Reset theme when user is not signed in
+      document.documentElement.removeAttribute('data-theme');
+    }
 
     return () => {
       // Reset theme when component unmounts
-      document.documentElement.setAttribute('data-theme', 'default');
+      document.documentElement.removeAttribute('data-theme');
     };
   }, [user]);
 
