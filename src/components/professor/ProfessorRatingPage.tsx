@@ -1,20 +1,56 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Star, BookOpen, GraduationCap, ThumbsUp, Search } from "lucide-react";
+import { Star, BookOpen, GraduationCap, ThumbsUp, Search, LockKeyhole } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const ProfessorRatingPage = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [professorName, setProfessorName] = useState("");
   const [course, setCourse] = useState("");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      toast.error("Please sign in to access professor ratings");
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  if (!user) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+          <Card className="max-w-md mx-auto text-center p-6">
+            <CardHeader>
+              <LockKeyhole className="w-12 h-12 text-primary mx-auto mb-4" />
+              <CardTitle className="text-2xl">Authentication Required</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-6">
+                Please sign in or create an account to access professor ratings.
+              </p>
+              <Button onClick={() => navigate("/")} size="lg" className="w-full">
+                Return to Home
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
