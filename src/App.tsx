@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 import { ProjectDetails } from "@/components/ProjectDetails";
@@ -25,6 +26,28 @@ const queryClient = new QueryClient({
   },
 });
 
+const AppContent = () => {
+  const { user } = useAuth();
+  
+  return (
+    <div className={user ? 'utep-theme' : ''}>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+        <Route path="/project/:projectId" element={<ProjectDetails />} />
+        <Route path="/marketplace" element={<MarketplacePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/:userId" element={<ProfilePage />} />
+        <Route path="/connections" element={<ConnectionsPage />} />
+        <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
+        <Route path="/professor-rating" element={<ProfessorRatingPage />} />
+        <Route path="/utep-assistant" element={<ProtectedRoute><UtepAssistantPage /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+};
+
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
@@ -32,19 +55,7 @@ const App = () => {
         <NotificationsProvider>
           <BrowserRouter>
             <TooltipProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
-                <Route path="/project/:projectId" element={<ProjectDetails />} />
-                <Route path="/marketplace" element={<MarketplacePage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/profile/:userId" element={<ProfilePage />} />
-                <Route path="/connections" element={<ConnectionsPage />} />
-                <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
-                <Route path="/professor-rating" element={<ProfessorRatingPage />} />
-                <Route path="/utep-assistant" element={<ProtectedRoute><UtepAssistantPage /></ProtectedRoute>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+              <AppContent />
               <Toaster />
               <Sonner />
             </TooltipProvider>
