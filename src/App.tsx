@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +14,7 @@ import { MarketplacePage } from "@/components/marketplace/MarketplacePage";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { ConnectionsPage } from "@/components/connections/ConnectionsPage";
 import { ProfessorRatingPage } from "@/components/professor/ProfessorRatingPage";
+import { UtepAssistantPage } from "@/components/utep-assistant/UtepAssistantPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,23 +31,24 @@ const App = () => {
       <AuthProvider>
         <NotificationsProvider>
           <BrowserRouter>
-          <TooltipProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
-              <Route path="/project/:projectId" element={<ProjectDetails />} />
-              <Route path="/marketplace" element={<MarketplacePage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/profile/:userId" element={<ProfilePage />} />
-              <Route path="/connections" element={<ConnectionsPage />} />
-              <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
-              <Route path="/professor-rating" element={<ProfessorRatingPage />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            <Toaster />
-            <Sonner />
-          </TooltipProvider>
-        </BrowserRouter>
+            <TooltipProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+                <Route path="/project/:projectId" element={<ProjectDetails />} />
+                <Route path="/marketplace" element={<MarketplacePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/:userId" element={<ProfilePage />} />
+                <Route path="/connections" element={<ConnectionsPage />} />
+                <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
+                <Route path="/professor-rating" element={<ProfessorRatingPage />} />
+                <Route path="/utep-assistant" element={<UtepAssistantPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <Toaster />
+              <Sonner />
+            </TooltipProvider>
+          </BrowserRouter>
         </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>

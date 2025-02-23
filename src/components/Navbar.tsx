@@ -48,6 +48,10 @@ export const Navbar = () => {
             <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate('/professor-rating')}>
               Professor Rating
             </Button>
+
+            <Button variant="outline" className="flex items-center gap-2" onClick={() => navigate('/utep-assistant')}>
+              UTEP Assistant
+            </Button>
             
             <div className="flex items-center gap-2">
               {user ? <div className="flex items-center gap-2">
