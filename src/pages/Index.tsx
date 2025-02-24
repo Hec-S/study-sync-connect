@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -187,84 +186,55 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:gap-12">
-            <div className="md:ml-12">
+          <div className="grid grid-cols-1 gap-8 md:gap-12 max-w-4xl mx-auto">
+            {[
+              {
+                title: "Professor Rating",
+                icon: Star,
+                description: "Rate and review your professors to help fellow students make informed decisions. Share your experiences and get insights from others.",
+                color: user ? "text-[#FF8200]" : "text-blue-500",
+                route: "/professor-rating"
+              },
+              {
+                title: "Work Hub",
+                icon: Users,
+                description: "Find exciting projects to collaborate on, showcase your skills, and build meaningful connections with other students.",
+                color: user ? "text-[#FF8200]" : "text-purple-500",
+                route: "/marketplace"
+              },
+              {
+                title: "UTEP Assistant",
+                icon: Brain,
+                description: "Your AI-powered academic companion that helps you navigate your studies, answer questions, and provide guidance.",
+                color: user ? "text-[#FF8200]" : "text-green-500",
+                route: "/utep-assistant"
+              }
+            ].map((feature, index) => (
               <Card
-                className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer
+                key={feature.title}
+                className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer w-full
                   ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}`}
-                onClick={() => navigate('/professor-rating')}
+                onClick={() => navigate(feature.route)}
               >
-                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                  <div className={`p-6 rounded-full ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
-                    <Star className={`w-10 h-10 ${user ? 'text-[#FF8200]' : 'text-blue-500'}`} />
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 min-h-[200px]">
+                  <div className={`p-6 rounded-full shrink-0 ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
+                    <feature.icon className={`w-10 h-10 ${feature.color}`} />
                   </div>
                   <div className="flex-1 text-center md:text-left">
                     <h3 className={`text-2xl font-semibold mb-4 ${user ? 'text-white' : 'text-foreground'}`}>
-                      Professor Rating
+                      {feature.title}
                     </h3>
                     <p className={`text-lg mb-4 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
-                      Rate and review your professors to help fellow students make informed decisions. Share your experiences and get insights from others.
+                      {feature.description}
                     </p>
                     <div className="flex items-center justify-center md:justify-start gap-2">
-                      <span className={`text-sm font-medium ${user ? 'text-[#FF8200]' : 'text-blue-500'}`}>Learn More</span>
-                      <ChevronRight className={`w-4 h-4 ${user ? 'text-[#FF8200]' : 'text-blue-500'}`} />
+                      <span className={`text-sm font-medium ${feature.color}`}>Learn More</span>
+                      <ChevronRight className={`w-4 h-4 ${feature.color}`} />
                     </div>
                   </div>
                 </div>
               </Card>
-            </div>
-
-            <div className="max-w-4xl mx-auto w-full">
-              <Card
-                className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer
-                  ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}`}
-                onClick={() => navigate('/marketplace')}
-              >
-                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                  <div className={`p-6 rounded-full ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
-                    <Users className={`w-10 h-10 ${user ? 'text-[#FF8200]' : 'text-purple-500'}`} />
-                  </div>
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className={`text-2xl font-semibold mb-4 ${user ? 'text-white' : 'text-foreground'}`}>
-                      Work Hub
-                    </h3>
-                    <p className={`text-lg mb-4 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
-                      Find exciting projects to collaborate on, showcase your skills, and build meaningful connections with other students.
-                    </p>
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                      <span className={`text-sm font-medium ${user ? 'text-[#FF8200]' : 'text-purple-500'}`}>Learn More</span>
-                      <ChevronRight className={`w-4 h-4 ${user ? 'text-[#FF8200]' : 'text-purple-500'}`} />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <div className="md:mr-12">
-              <Card
-                className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer
-                  ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}`}
-                onClick={() => navigate('/utep-assistant')}
-              >
-                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                  <div className={`p-6 rounded-full ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
-                    <Brain className={`w-10 h-10 ${user ? 'text-[#FF8200]' : 'text-green-500'}`} />
-                  </div>
-                  <div className="flex-1 text-center md:text-left">
-                    <h3 className={`text-2xl font-semibold mb-4 ${user ? 'text-white' : 'text-foreground'}`}>
-                      UTEP Assistant
-                    </h3>
-                    <p className={`text-lg mb-4 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
-                      Your AI-powered academic companion that helps you navigate your studies, answer questions, and provide guidance.
-                    </p>
-                    <div className="flex items-center justify-center md:justify-start gap-2">
-                      <span className={`text-sm font-medium ${user ? 'text-[#FF8200]' : 'text-green-500'}`}>Learn More</span>
-                      <ChevronRight className={`w-4 h-4 ${user ? 'text-[#FF8200]' : 'text-green-500'}`} />
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            ))}
           </div>
 
           <div className={`mt-16 p-8 rounded-2xl text-center ${
