@@ -6,11 +6,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Sparkles, GraduationCap, Brain, Users, Star, Book, ChevronRight } from "lucide-react";
+import { Search, Sparkles, GraduationCap, Brain, Users, Star, Book, ChevronRight, Pickaxe } from "lucide-react";
 import { SearchResults } from "@/components/search/SearchResults";
 import { Database } from "@/integrations/supabase/types";
 import { Card } from "@/components/ui/card";
+
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
@@ -23,6 +25,7 @@ const Index = () => {
   const {
     toast
   } = useToast();
+
   const handleAssistantClick = () => {
     if (!user) {
       toast({
@@ -34,6 +37,7 @@ const Index = () => {
       navigate('/utep-assistant');
     }
   };
+
   useEffect(() => {
     const searchUsers = async () => {
       if (!searchQuery.trim()) {
@@ -64,6 +68,7 @@ const Index = () => {
     const debounceTimeout = setTimeout(searchUsers, 300);
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery, toast]);
+
   return <div className={`min-h-screen ${user ? 'bg-[#041E42]' : 'bg-background'}`}>
       <Navbar />
       
@@ -119,7 +124,15 @@ const Index = () => {
 
         <section className="max-w-7xl mx-auto mb-20">
           <div className="text-center mb-16">
-            <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${user ? 'text-[#FF8200]' : 'text-primary'}`}>Your Campus Your Community</h2>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
+                Your Campus
+              </h2>
+              <Pickaxe className={`w-8 h-8 md:w-10 md:h-10 ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
+              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
+                Your Community
+              </h2>
+            </div>
             <p className={`text-xl ${user ? 'text-white' : 'text-muted-foreground'} max-w-3xl mx-auto`}>
               Your all-in-one platform for enhancing your academic journey and building meaningful connections
             </p>
@@ -182,4 +195,5 @@ const Index = () => {
       </main>
     </div>;
 };
+
 export default Index;
