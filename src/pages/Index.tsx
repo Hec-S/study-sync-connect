@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -68,30 +69,6 @@ const Index = () => {
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery, toast]);
 
-  const features = [
-    {
-      title: "Professor Rating",
-      icon: Star,
-      description: "Rate and review your professors to help fellow students make informed decisions. Share your experiences and get insights from others.",
-      color: user ? "text-[#FF8200]" : "text-blue-500",
-      route: "/professor-rating"
-    },
-    {
-      title: "Work Hub",
-      icon: Users,
-      description: "Find exciting projects to collaborate on, showcase your skills, and build meaningful connections with other students.",
-      color: user ? "text-[#FF8200]" : "text-purple-500",
-      route: "/marketplace"
-    },
-    {
-      title: "UTEP Assistant",
-      icon: Brain,
-      description: "Your AI-powered academic companion that helps you navigate your studies, answer questions, and provide guidance.",
-      color: user ? "text-[#FF8200]" : "text-green-500",
-      route: "/utep-assistant"
-    }
-  ];
-
   return (
     <div className={`min-h-screen ${user ? 'bg-[#041E42]' : 'bg-background'}`}>
       <Navbar />
@@ -105,56 +82,47 @@ const Index = () => {
             <GraduationCap className={`w-8 h-8 md:w-12 md:h-12 ${user ? 'text-[#FF8200]' : 'text-primary'} animate-bounce`} />
           </div>
           
-          <p className={`text-lg md:text-xl ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'} mb-12 leading-relaxed px-4 md:px-0`}>
+          <p className={`text-lg md:text-xl ${user ? 'text-white' : 'text-muted-foreground'} mb-12 leading-relaxed px-4 md:px-0`}>
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 px-4 md:px-0">
-            <div 
-              onClick={() => navigate('/professor-rating')}
-              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
-                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
-            >
-              <GraduationCap className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
-                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
-              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
-                Professor Rating
-              </h3>
-              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
-                Rate and review your professors to help other students
-              </p>
-            </div>
-            <div 
-              onClick={() => navigate('/marketplace')}
-              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
-                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
-            >
-              <Sparkles className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
-                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
-              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
-                Work Hub
-              </h3>
-              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
-                Find projects and collaborate with fellow students
-              </p>
-            </div>
-            <div 
-              onClick={handleAssistantClick}
-              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
-                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
-            >
-              <Brain className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
-                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
-              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
-                UTEP Assistant
-              </h3>
-              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
-                Your AI-powered guide for academic success
-              </p>
-            </div>
+            {[
+              {
+                icon: GraduationCap,
+                title: "Professor Rating",
+                description: "Rate and review your professors to help other students"
+              },
+              {
+                icon: Sparkles,
+                title: "Work Hub",
+                description: "Find projects and collaborate with fellow students"
+              },
+              {
+                icon: Brain,
+                title: "UTEP Assistant",
+                description: "Your AI-powered guide for academic success"
+              }
+            ].map((feature, index) => (
+              <div 
+                key={feature.title}
+                onClick={() => feature.title === "UTEP Assistant" ? handleAssistantClick() : navigate(`/${feature.title.toLowerCase().replace(' ', '-')}`)}
+                className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
+                  ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
+              >
+                <feature.icon className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
+                  ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
+                <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
+                  {feature.title}
+                </h3>
+                <p className={user ? 'text-white text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12 px-4 md:px-0">
+
+          <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto mb-12">
             <div className="flex-1 relative">
               <Input 
                 type="text" 
@@ -163,7 +131,7 @@ const Index = () => {
                 onChange={e => setSearchQuery(e.target.value)} 
                 onFocus={() => setShowResults(true)} 
                 className={`pl-10 h-10 md:h-12 text-base md:text-lg ${
-                  user ? 'bg-[#041E42]/50 border-[#B1B3B3]/20 text-white placeholder:text-[#B1B3B3]/60' 
+                  user ? 'bg-[#041E42]/50 border-[#B1B3B3]/20 text-white placeholder:text-white/60' 
                   : 'bg-background border-input text-foreground placeholder:text-muted-foreground'
                 }`} 
               />
@@ -184,7 +152,7 @@ const Index = () => {
             <h2 className={`text-3xl md:text-4xl font-bold mb-4 ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
               Welcome to ImStudents
             </h2>
-            <p className={`text-xl ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'} max-w-3xl mx-auto`}>
+            <p className={`text-xl ${user ? 'text-white' : 'text-muted-foreground'} max-w-3xl mx-auto`}>
               Your all-in-one platform for enhancing your academic journey and building meaningful connections
             </p>
           </div>
@@ -217,7 +185,7 @@ const Index = () => {
                 key={feature.title}
                 className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer w-full
                   ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}`}
-                onClick={() => navigate(feature.route)}
+                onClick={() => feature.title === "UTEP Assistant" ? handleAssistantClick() : navigate(feature.route)}
               >
                 <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 min-h-[200px]">
                   <div className={`p-6 rounded-full shrink-0 ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
@@ -227,7 +195,7 @@ const Index = () => {
                     <h3 className={`text-2xl font-semibold mb-4 ${user ? 'text-white' : 'text-foreground'}`}>
                       {feature.title}
                     </h3>
-                    <p className={`text-lg mb-4 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
+                    <p className={`text-lg mb-4 ${user ? 'text-white' : 'text-muted-foreground'}`}>
                       {feature.description}
                     </p>
                     <div className="flex items-center justify-center md:justify-start gap-2">
@@ -246,7 +214,7 @@ const Index = () => {
             <h3 className={`text-2xl md:text-3xl font-bold mb-4 ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
               Ready to Get Started?
             </h3>
-            <p className={`text-lg mb-6 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
+            <p className={`text-lg mb-6 ${user ? 'text-white' : 'text-muted-foreground'}`}>
               Join our community of students and start exploring all that ImStudents has to offer
             </p>
             <Button 
