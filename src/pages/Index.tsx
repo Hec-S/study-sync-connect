@@ -38,18 +38,20 @@ const Index = () => {
     const searchUsers = async () => {
       if (!searchQuery.trim()) {
         setSearchResults([]);
+        setShowResults(false);
         return;
       }
       setIsSearching(true);
       try {
-        const searchTerm = searchQuery.trim();
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
-          .ilike("full_name", `%${searchTerm}%`)
+          .ilike("full_name", `%${searchQuery.trim()}%`)
           .limit(10);
+
         if (error) throw error;
         setSearchResults(data || []);
+        setShowResults(true);
       } catch (error) {
         console.error("Search error:", error);
         toast({
@@ -61,9 +63,10 @@ const Index = () => {
         setIsSearching(false);
       }
     };
+
     const debounceTimeout = setTimeout(searchUsers, 300);
     return () => clearTimeout(debounceTimeout);
-  }, [searchQuery]);
+  }, [searchQuery, toast]);
 
   const features = [
     {
