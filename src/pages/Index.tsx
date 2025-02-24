@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
@@ -120,9 +121,9 @@ const Index = () => {
         <section className="max-w-7xl mx-auto mb-20">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>Your Campus  </h2>
-              <Pickaxe className={`w-8 h-8 md:w-10 md:h-10 ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
-              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>  Your Community</h2>
+              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>Your Campus</h2>
+              {user && <Pickaxe className={`w-8 h-8 md:w-10 md:h-10 text-[#FF8200]`} />}
+              <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>Your Community</h2>
             </div>
             <p className={`text-xl ${user ? 'text-white' : 'text-muted-foreground'} max-w-3xl mx-auto`}>
               Your all-in-one platform for enhancing your academic journey and building meaningful connections
