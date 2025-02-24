@@ -179,6 +179,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           Description: string | null
           full_name: string | null
@@ -189,6 +190,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           Description?: string | null
           full_name?: string | null
@@ -199,6 +201,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           Description?: string | null
           full_name?: string | null
@@ -271,6 +274,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       connection_status: "pending" | "accepted" | "rejected"
+      message_status: "read" | "unread"
       project_status: "open" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
