@@ -2,15 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { MarketplaceProjectGrid } from "@/components/marketplace/MarketplaceProjectGrid";
-import { MarketplaceProject } from "@/components/marketplace/MarketplacePage";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Sparkles, GraduationCap, Users, MessageSquare, Brain } from "lucide-react";
+import { Search, Sparkles, GraduationCap, Brain } from "lucide-react";
 import { SearchResults } from "@/components/search/SearchResults";
 import { Database } from "@/integrations/supabase/types";
 
@@ -67,35 +64,6 @@ const Index = () => {
     const debounceTimeout = setTimeout(searchUsers, 300);
     return () => clearTimeout(debounceTimeout);
   }, [searchQuery]);
-
-  const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['marketplace_projects'],
-    queryFn: async () => {
-      const { data: projects, error: projectsError } = await supabase
-        .from('marketplace_projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(4);
-      if (projectsError) throw projectsError;
-
-      const ownerIds = [...new Set((projects || []).map(p => p.owner_id))];
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', ownerIds);
-      if (profilesError) throw profilesError;
-
-      const ownerNames = (profiles || []).reduce((acc, profile) => ({
-        ...acc,
-        [profile.id]: profile.full_name
-      }), {} as Record<string, string | null>);
-
-      return (projects || []).map(project => ({
-        ...project,
-        owner_name: ownerNames[project.owner_id] || null
-      })) as MarketplaceProject[];
-    }
-  });
 
   return (
     <div className={`min-h-screen ${user ? 'bg-[#041E42]' : 'bg-background'}`}>
@@ -186,64 +154,6 @@ const Index = () => {
             </div>
           </div>
         </div>
-
-        {/* Latest Projects Section */}
-        <section className={`mb-20 rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border ${
-          user ? 'bg-[#041E42]/80 backdrop-blur-lg border-[#B1B3B3]/20' : 'bg-card/80 backdrop-blur-lg border-border'
-        }`}>
-          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 ${
-            user ? 'border-b border-[#B1B3B3]/20' : 'border-b border-border'
-          }`}>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3">
-                <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
-                  Student Work Hub
-                </h2>
-              </div>
-              <p className={`text-lg ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
-                Find projects and collaborate with fellow students
-              </p>
-            </div>
-            <Button 
-              onClick={() => navigate('/marketplace')} 
-              className={user ? 
-                "bg-[#FF8200] hover:bg-[#FF8200]/90 text-white shadow-md hover:shadow-lg transition-all duration-300" 
-                : "bg-primary hover:bg-primary/90"
-              } 
-              size="lg"
-            >
-              <Search className="h-5 w-5 mr-2" />
-              Find Projects
-            </Button>
-          </div>
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="relative">
-                <div className={`animate-spin rounded-full h-12 w-12 border-4 ${
-                  user ? 'border-[#FF8200] border-t-transparent' : 'border-primary border-t-transparent'
-                }`}></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`h-6 w-6 rounded-full ${
-                    user ? 'bg-[#FF8200]/20' : 'bg-primary/20'
-                  } animate-pulse`}></div>
-                </div>
-              </div>
-            </div>
-          ) : projects.length === 0 ? (
-            <div className={`text-center py-16 rounded-xl border ${
-              user ? 'bg-[#041E42]/50 border-[#B1B3B3]/20' : 'bg-card/50 border-border'
-            }`}>
-              <h3 className={`text-2xl font-semibold mb-3 ${user ? 'text-white' : 'text-foreground'}`}>
-                No Projects Found
-              </h3>
-              <p className={user ? 'text-[#B1B3B3] text-lg' : 'text-muted-foreground text-lg'}>
-                Be the first to post a project and start collaborating!
-              </p>
-            </div>
-          ) : (
-            <MarketplaceProjectGrid projects={projects} isGridView={true} onUpdate={() => {}} currentUser={user} />
-          )}
-        </section>
       </main>
     </div>
   );
