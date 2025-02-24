@@ -186,29 +186,35 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid gap-8">
+          <div className="grid grid-cols-1 gap-8 md:gap-12">
             {features.map((feature, index) => (
               <Card
                 key={feature.title}
                 className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer
                   ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}
-                  ${index % 2 === 0 ? 'md:ml-12' : 'md:mr-12'}`}
+                  ${index % 2 === 0 ? 'translate-x-0 md:translate-x-12' : 'translate-x-0 md:-translate-x-12'}`}
                 onClick={() => navigate(feature.route)}
               >
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                  <div className={`p-4 rounded-full ${user ? 'bg-[#041E42]' : 'bg-primary/10'}`}>
-                    <feature.icon className={`w-8 h-8 ${feature.color}`} />
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                  <div className={`p-6 rounded-full ${user ? 'bg-[#041E42]' : 'bg-primary/10'} 
+                    transform transition-transform group-hover:scale-110 duration-300`}
+                  >
+                    <feature.icon className={`w-10 h-10 ${feature.color}`} />
                   </div>
-                  <div className="flex-1">
-                    <h3 className={`text-2xl font-semibold mb-3 group-hover:${feature.color}`}>
+                  <div className="flex-1 text-center md:text-left">
+                    <h3 className={`text-2xl font-semibold mb-4 ${user ? 'text-white' : 'text-foreground'}
+                      group-hover:${feature.color} transition-colors duration-300`}
+                    >
                       {feature.title}
                     </h3>
                     <p className={`text-lg mb-4 ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
                       {feature.description}
                     </p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center md:justify-start gap-2">
                       <span className={`text-sm font-medium ${feature.color}`}>Learn More</span>
-                      <ChevronRight className={`w-4 h-4 ${feature.color} transform transition-transform group-hover:translate-x-1`} />
+                      <ChevronRight className={`w-4 h-4 ${feature.color} 
+                        transform transition-transform group-hover:translate-x-1`} 
+                      />
                     </div>
                   </div>
                 </div>
