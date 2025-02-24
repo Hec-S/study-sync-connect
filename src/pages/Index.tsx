@@ -98,20 +98,20 @@ const Index = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#041E42]">
+    <div className={`min-h-screen ${user ? 'bg-[#041E42]' : 'bg-background'}`}>
       <Navbar />
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto text-center mb-16 animate-fadeIn">
           {/* Hero Section */}
           <div className="flex items-center justify-center gap-2 mb-6">
-            <h1 className="text-3xl md:text-5xl font-bold text-[#FF8200]">
+            <h1 className={`text-3xl md:text-5xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
               ImStudents
             </h1>
-            <GraduationCap className="w-8 h-8 md:w-12 md:h-12 text-[#FF8200] animate-bounce" />
+            <GraduationCap className={`w-8 h-8 md:w-12 md:h-12 ${user ? 'text-[#FF8200]' : 'text-primary'} animate-bounce`} />
           </div>
           
-          <p className="text-lg md:text-xl text-[#B1B3B3] mb-12 leading-relaxed px-4 md:px-0">
+          <p className={`text-lg md:text-xl ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'} mb-12 leading-relaxed px-4 md:px-0`}>
             Connect with talented students, collaborate on amazing projects, and build your portfolio together.
           </p>
 
@@ -119,27 +119,45 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12 px-4 md:px-0">
             <div 
               onClick={() => navigate('/professor-rating')}
-              className="p-4 md:p-6 bg-[#041E42] rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-[#B1B3B3]/20 hover:border-[#FF8200]/50 cursor-pointer group"
+              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
+                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
             >
-              <GraduationCap className="w-6 h-6 md:w-8 md:h-8 text-[#FF8200] mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="font-semibold text-base md:text-lg mb-2 text-white">Professor Rating</h3>
-              <p className="text-[#B1B3B3] text-xs md:text-sm">Rate and review your professors to help other students</p>
+              <GraduationCap className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
+                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
+              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
+                Professor Rating
+              </h3>
+              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
+                Rate and review your professors to help other students
+              </p>
             </div>
             <div 
               onClick={() => navigate('/marketplace')}
-              className="p-4 md:p-6 bg-[#041E42] rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-[#B1B3B3]/20 hover:border-[#FF8200]/50 cursor-pointer group"
+              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
+                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
             >
-              <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-[#FF8200] mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="font-semibold text-base md:text-lg mb-2 text-white">Work Hub</h3>
-              <p className="text-[#B1B3B3] text-xs md:text-sm">Find projects and collaborate with fellow students</p>
+              <Sparkles className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
+                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
+              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
+                Work Hub
+              </h3>
+              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
+                Find projects and collaborate with fellow students
+              </p>
             </div>
             <div 
               onClick={handleAssistantClick}
-              className="p-4 md:p-6 bg-[#041E42] rounded-xl shadow-lg hover:shadow-xl transition-shadow border border-[#B1B3B3]/20 hover:border-[#FF8200]/50 cursor-pointer group"
+              className={`p-4 md:p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow border cursor-pointer group
+                ${user ? 'bg-[#041E42] border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card hover:border-primary/50 border-border'}`}
             >
-              <Brain className="w-6 h-6 md:w-8 md:h-8 text-[#FF8200] mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform" />
-              <h3 className="font-semibold text-base md:text-lg mb-2 text-white">UTEP Assistant</h3>
-              <p className="text-[#B1B3B3] text-xs md:text-sm">Your AI-powered guide for academic success</p>
+              <Brain className={`w-6 h-6 md:w-8 md:h-8 mx-auto mb-3 md:mb-4 group-hover:scale-110 transition-transform
+                ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
+              <h3 className={`font-semibold text-base md:text-lg mb-2 ${user ? 'text-white' : 'text-card-foreground'}`}>
+                UTEP Assistant
+              </h3>
+              <p className={user ? 'text-[#B1B3B3] text-xs md:text-sm' : 'text-muted-foreground text-xs md:text-sm'}>
+                Your AI-powered guide for academic success
+              </p>
             </div>
           </div>
           
@@ -152,11 +170,16 @@ const Index = () => {
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
                 onFocus={() => setShowResults(true)} 
-                className="pl-10 h-10 md:h-12 text-base md:text-lg bg-[#041E42]/50 border-[#B1B3B3]/20 text-white placeholder:text-[#B1B3B3]/60" 
+                className={`pl-10 h-10 md:h-12 text-base md:text-lg ${
+                  user ? 'bg-[#041E42]/50 border-[#B1B3B3]/20 text-white placeholder:text-[#B1B3B3]/60' 
+                  : 'bg-background border-input text-foreground placeholder:text-muted-foreground'
+                }`} 
               />
-              <Search className="w-4 h-4 md:w-5 md:h-5 absolute left-3 top-3 md:top-3.5 text-[#FF8200]" />
+              <Search className={`w-4 h-4 md:w-5 md:h-5 absolute left-3 top-3 md:top-3.5 ${user ? 'text-[#FF8200]' : 'text-primary'}`} />
               {showResults && (searchResults.length > 0 || isSearching) && (
-                <div className="absolute top-full mt-1 w-full bg-[#041E42] border border-[#B1B3B3]/20 rounded-lg shadow-lg z-50">
+                <div className={`absolute top-full mt-1 w-full rounded-lg shadow-lg z-50 ${
+                  user ? 'bg-[#041E42] border border-[#B1B3B3]/20' : 'bg-popover border border-border'
+                }`}>
                   <SearchResults results={searchResults} isLoading={isSearching} />
                 </div>
               )}
@@ -165,21 +188,28 @@ const Index = () => {
         </div>
 
         {/* Latest Projects Section */}
-        <section className="mb-20 bg-[#041E42]/80 backdrop-blur-lg rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border border-[#B1B3B3]/20">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 border-b border-[#B1B3B3]/20">
+        <section className={`mb-20 rounded-2xl shadow-lg p-8 max-w-[1400px] mx-auto border ${
+          user ? 'bg-[#041E42]/80 backdrop-blur-lg border-[#B1B3B3]/20' : 'bg-card/80 backdrop-blur-lg border-border'
+        }`}>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 pb-6 ${
+            user ? 'border-b border-[#B1B3B3]/20' : 'border-b border-border'
+          }`}>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#FF8200]">
+                <h2 className={`text-3xl md:text-4xl font-bold ${user ? 'text-[#FF8200]' : 'text-primary'}`}>
                   Student Work Hub
                 </h2>
               </div>
-              <p className="text-lg text-[#B1B3B3]">
+              <p className={`text-lg ${user ? 'text-[#B1B3B3]' : 'text-muted-foreground'}`}>
                 Find projects and collaborate with fellow students
               </p>
             </div>
             <Button 
               onClick={() => navigate('/marketplace')} 
-              className="bg-[#FF8200] hover:bg-[#FF8200]/90 text-white shadow-md hover:shadow-lg transition-all duration-300" 
+              className={user ? 
+                "bg-[#FF8200] hover:bg-[#FF8200]/90 text-white shadow-md hover:shadow-lg transition-all duration-300" 
+                : "bg-primary hover:bg-primary/90"
+              } 
               size="lg"
             >
               <Search className="h-5 w-5 mr-2" />
@@ -189,16 +219,26 @@ const Index = () => {
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
               <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#FF8200] border-t-transparent"></div>
+                <div className={`animate-spin rounded-full h-12 w-12 border-4 ${
+                  user ? 'border-[#FF8200] border-t-transparent' : 'border-primary border-t-transparent'
+                }`}></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-6 w-6 rounded-full bg-[#FF8200]/20 animate-pulse"></div>
+                  <div className={`h-6 w-6 rounded-full ${
+                    user ? 'bg-[#FF8200]/20' : 'bg-primary/20'
+                  } animate-pulse`}></div>
                 </div>
               </div>
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-16 bg-[#041E42]/50 rounded-xl border border-[#B1B3B3]/20">
-              <h3 className="text-2xl font-semibold text-white mb-3">No Projects Found</h3>
-              <p className="text-[#B1B3B3] text-lg">Be the first to post a project and start collaborating!</p>
+            <div className={`text-center py-16 rounded-xl border ${
+              user ? 'bg-[#041E42]/50 border-[#B1B3B3]/20' : 'bg-card/50 border-border'
+            }`}>
+              <h3 className={`text-2xl font-semibold mb-3 ${user ? 'text-white' : 'text-foreground'}`}>
+                No Projects Found
+              </h3>
+              <p className={user ? 'text-[#B1B3B3] text-lg' : 'text-muted-foreground text-lg'}>
+                Be the first to post a project and start collaborating!
+              </p>
             </div>
           ) : (
             <MarketplaceProjectGrid projects={projects} isGridView={true} onUpdate={() => {}} currentUser={user} />
