@@ -192,7 +192,7 @@ const Index = () => {
                 key={feature.title}
                 className={`group p-6 md:p-8 transform transition-all duration-300 hover:scale-[1.02] cursor-pointer
                   ${user ? 'bg-[#041E42]/80 border-[#B1B3B3]/20 hover:border-[#FF8200]/50' : 'bg-card/80 hover:border-primary/50'}
-                  ${index % 2 === 0 ? 'translate-x-0 md:translate-x-12' : 'translate-x-0 md:-translate-x-12'}`}
+                  ${index === 1 ? '' : index % 2 === 0 ? 'translate-x-0 md:translate-x-12' : 'translate-x-0 md:-translate-x-12'}`}
                 onClick={() => navigate(feature.route)}
               >
                 <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
