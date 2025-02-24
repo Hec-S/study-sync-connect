@@ -12,24 +12,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Navbar = () => {
   const navigate = useNavigate();
-  const {
-    user,
-    signOut,
-    error: authError
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple clicks
+    
     setIsSigningOut(true);
     try {
-      const {
-        success
-      } = await signOut();
-      if (success) {
-        toast.success("Signed out successfully");
-      }
+      await signOut();
+      toast.success("Signed out successfully");
+      navigate('/');
     } catch (err) {
-      toast.error(authError || "Failed to sign out");
+      toast.error("Failed to sign out. Please try again.");
     } finally {
       setIsSigningOut(false);
     }
@@ -44,29 +39,20 @@ export const Navbar = () => {
           </Link>
           
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" asChild className="nav-button">
-                    <Link to="/portfolio">My Portfolio</Link>
-                  </Button>
-                  <Button variant="outline" asChild className="nav-button relative">
-                    <Link to="/connections">
-                      Social
-                      <NotificationBadge type="social" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild className="nav-button">
-                    <Link to="/profile">My Profile</Link>
-                  </Button>
-                </div>
-              ) : (
-                <Button variant="outline" disabled className="text-muted-foreground">
-                  Portfolio
+            {user ? (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" asChild className="nav-button">
+                  <Link to="/portfolio">My Portfolio</Link>
                 </Button>
-              )}
-
-              {user ? (
+                <Button variant="outline" asChild className="nav-button relative">
+                  <Link to="/connections">
+                    Social
+                    <NotificationBadge type="social" />
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild className="nav-button">
+                  <Link to="/profile">My Profile</Link>
+                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -108,10 +94,10 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
-                <AuthDialog />
-              )}
-            </div>
+              </div>
+            ) : (
+              <AuthDialog />
+            )}
           </div>
         </div>
       </div>
