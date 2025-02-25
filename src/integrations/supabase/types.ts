@@ -6,9 +6,113 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type Connection = {
+  id: string;
+  requester_id: string;
+  receiver_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+  updated_at: string;
+};
+
+export type Message = {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string;
+  read_status: boolean;
+  created_at: string;
+};
+
+export type Project = {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  thumbnail_url?: string;
+  likes?: number;
+  comments?: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
+      portfolio_likes: {
+        Row: {
+          id: string
+          portfolio_item_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          portfolio_item_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          portfolio_item_id?: string
+          user_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_likes_portfolio_item_id_fkey"
+            columns: ["portfolio_item_id"]
+            referencedRelation: "portfolio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_likes_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      portfolio_comments: {
+        Row: {
+          id: string
+          portfolio_item_id: string
+          user_id: string
+          content: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          portfolio_item_id: string
+          user_id: string
+          content: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          portfolio_item_id?: string
+          user_id?: string
+          content?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_comments_portfolio_item_id_fkey"
+            columns: ["portfolio_item_id"]
+            referencedRelation: "portfolio_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "portfolio_comments_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       connections: {
         Row: {
           created_at: string

@@ -5,12 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NotificationBadge } from "@/components/ui/notification-badge";
-import { UserPlus, Users, Check, X, MessageSquare, Send } from "lucide-react";
+import { UserPlus, Users, Check, X, MessageSquare, Send, Folder } from "lucide-react";
+import { PortfolioFeedCard } from "@/components/portfolio/PortfolioFeedCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import type { Connection, Message } from "@/integrations/supabase/types";
+import type { Connection, Message, Project } from "@/integrations/supabase/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -28,6 +29,35 @@ type MessageWithProfile = Message & {
   receiver_profile: Profile | null;
 };
 
+type DatabasePortfolioItem = {
+  id: string;
+  title: string;
+  description: string;
+  image_url?: string;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
+  category: string;
+  completion_date?: string;
+  project_url?: string;
+  skills: string[];
+  likes_count?: number;
+  comments_count?: number;
+};
+
+type PortfolioItem = DatabasePortfolioItem & {
+  likes_count: number;
+  comments_count: number;
+  is_liked?: boolean;
+  user_profile: Profile | null;
+};
+
+// Helper function to get counts from the database response
+const getCounts = (item: any) => ({
+  likes_count: item.likes_count || 0,
+  comments_count: item.comments_count || 0
+});
+
 export const ConnectionsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -39,6 +69,9 @@ export const ConnectionsPage = () => {
   const [messages, setMessages] = useState<MessageWithProfile[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [portfolioProjects, setPortfolioProjects] = useState<PortfolioItem[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   // Set initial tab from URL
   useEffect(() => {
@@ -53,7 +86,8 @@ export const ConnectionsPage = () => {
       Promise.all([
         fetchConnections(),
         fetchPendingRequests(),
-        fetchMessages()
+        fetchMessages(),
+        fetchPortfolioProjects()
       ]).finally(() => setIsLoading(false));
 
       // Subscribe to message changes
@@ -290,6 +324,89 @@ export const ConnectionsPage = () => {
   const handleTabChange = async (value: string) => {
     // Update URL with current tab
     setSearchParams({ tab: value });
+    
+    // Load more projects when switching to portfolio tab
+    if (value === 'portfolio' && portfolioProjects.length === 0) {
+      await fetchPortfolioProjects();
+    }
+  };
+
+  const fetchPortfolioProjects = async (offset = 0) => {
+    if (!user?.id || !hasMore) return;
+
+    try {
+      setIsLoadingMore(true);
+
+      // First fetch portfolio items
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('portfolio_items')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + 4);
+
+      if (projectsError) throw projectsError;
+
+      // If no more projects, set hasMore to false
+      if (!projectsData || projectsData.length < 5) {
+        setHasMore(false);
+      }
+
+      if (projectsError) throw projectsError;
+
+      // If no more items, set hasMore to false
+      if (!projectsData || projectsData.length < 5) {
+        setHasMore(false);
+      }
+
+      if (!projectsData?.length) {
+        setPortfolioProjects([]);
+        return;
+      }
+
+      // Then fetch profiles for those items
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name, school_name')
+        .in('id', projectsData.map(item => item.owner_id));
+
+      // Check which items are liked by the current user
+      const { data: likesData } = await supabase
+        .from('portfolio_likes')
+        .select('portfolio_item_id')
+        .eq('user_id', user.id)
+        .in('portfolio_item_id', projectsData.map(item => item.id));
+
+      const likedItemIds = new Set(likesData?.map(like => like.portfolio_item_id));
+
+      // Combine the data
+      const transformedProjects = projectsData.map(item => ({
+        ...item,
+        user_profile: profilesData?.find(profile => profile.id === item.owner_id) || null,
+        is_liked: likedItemIds.has(item.id),
+        likes_count: item.likes_count || 0,
+        comments_count: item.comments_count || 0
+      }));
+
+      setPortfolioProjects(prev => 
+        offset === 0 ? transformedProjects : [...prev, ...transformedProjects]
+      );
+    } catch (error) {
+      console.error('Error fetching portfolio projects:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load portfolio projects",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
+    const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
+    if (bottom && !isLoadingMore && hasMore) {
+      await fetchPortfolioProjects(portfolioProjects.length);
+    }
   };
 
   const handleAcceptRequest = async (connectionId: string) => {
@@ -342,6 +459,55 @@ export const ConnectionsPage = () => {
       toast({
         title: "Error",
         description: "Failed to reject connection request",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLike = async (itemId: string) => {
+    if (!user) return;
+
+    try {
+      const item = portfolioProjects.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (item.is_liked) {
+        // Unlike
+        const { error } = await supabase
+          .from('portfolio_likes')
+          .delete()
+          .eq('portfolio_item_id', itemId)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        setPortfolioProjects(prev => prev.map(item => 
+          item.id === itemId
+            ? { ...item, is_liked: false, likes_count: Math.max(0, item.likes_count - 1) }
+            : item
+        ));
+      } else {
+        // Like
+        const { error } = await supabase
+          .from('portfolio_likes')
+          .insert({
+            portfolio_item_id: itemId,
+            user_id: user.id
+          });
+
+        if (error) throw error;
+
+        setPortfolioProjects(prev => prev.map(item => 
+          item.id === itemId
+            ? { ...item, is_liked: true, likes_count: item.likes_count + 1 }
+            : item
+        ));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update like status",
         variant: "destructive",
       });
     }
@@ -414,6 +580,10 @@ export const ConnectionsPage = () => {
               <NotificationBadge type="messages" />
             </div>
             Messages
+          </TabsTrigger>
+          <TabsTrigger value="portfolio" className="flex items-center gap-2">
+            <Folder className="h-4 w-4" />
+            Portfolio Feed
           </TabsTrigger>
         </TabsList>
 
@@ -513,6 +683,51 @@ export const ConnectionsPage = () => {
                 ))}
               </div>
             )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="portfolio">
+          <Card className="p-0">
+            <div 
+              className="max-w-xl mx-auto py-4 px-0 overflow-y-auto"
+              style={{ height: 'calc(100vh - 200px)' }}
+              onScroll={handleScroll}
+            >
+              {portfolioProjects.length === 0 && !isLoadingMore ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Folder className="h-12 w-12 mx-auto mb-2" />
+                  <h3 className="text-lg font-medium">No projects yet</h3>
+                  <p>Connect with more students to see their portfolio projects!</p>
+                </div>
+              ) : (
+                <>
+                  {portfolioProjects.map((project) => (
+                    <PortfolioFeedCard
+                      key={project.id}
+                      id={project.id}
+                      title={project.title}
+                      description={project.description}
+                      imageUrl={project.image_url}
+                      createdAt={project.created_at}
+                      likes={project.likes_count}
+                      comments={project.comments_count}
+                      isLiked={project.is_liked}
+                      onLike={() => handleLike(project.id)}
+                      user={{
+                        id: project.owner_id,
+                        name: project.user_profile?.full_name || 'Unknown',
+                        school: project.user_profile?.school_name || 'Unknown'
+                      }}
+                    />
+                  ))}
+                  {isLoadingMore && (
+                    <div className="text-center py-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </Card>
         </TabsContent>
 

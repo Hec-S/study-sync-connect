@@ -9,6 +9,11 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import ProfessorRatingLanding from "@/pages/ProfessorRatingLanding";
+import WorkHubLanding from "@/pages/WorkHubLanding";
+import UtepAssistantLanding from "@/pages/UtepAssistantLanding";
+import PortfolioLanding from "@/pages/PortfolioLanding";
+import { PortfolioFeedPage } from "@/pages/PortfolioFeedPage";
 import { PortfolioPage } from "@/components/portfolio/PortfolioPage";
 import { ProjectDetails } from "@/components/ProjectDetails";
 import { MarketplacePage } from "@/components/marketplace/MarketplacePage";
@@ -57,6 +62,11 @@ const AppContent = () => {
       <Route path="/profile/:userId" element={<ProfilePage />} />
       <Route path="/connections" element={<ConnectionsPage />} />
       <Route path="/profile/:userId/connections" element={<ConnectionsPage />} />
+      <Route path="/professor-rating-landing" element={<ProfessorRatingLanding />} />
+      <Route path="/work-hub-landing" element={<WorkHubLanding />} />
+      <Route path="/utep-assistant-landing" element={<UtepAssistantLanding />} />
+      <Route path="/portfolio-landing" element={<PortfolioLanding />} />
+      <Route path="/portfolio-feed" element={<ProtectedRoute><PortfolioFeedPage /></ProtectedRoute>} />
       <Route path="/professor-rating" element={<ProfessorRatingPage />} />
       <Route path="/utep-assistant" element={<ProtectedRoute><UtepAssistantPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />

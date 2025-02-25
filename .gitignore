@@ -27,3 +27,11 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+
+# Database and temporary files
+*.sql
+!supabase/migrations/*.sql
+repository-url.txt
+
+# Build and temporary scripts
+check-users.ts
