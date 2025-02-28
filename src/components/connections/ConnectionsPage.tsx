@@ -5,12 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { NotificationBadge } from "@/components/ui/notification-badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { UserPlus, Users, Check, X, MessageSquare, Send, Folder } from "lucide-react";
 import { PortfolioFeedCard } from "@/components/portfolio/PortfolioFeedCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { Connection, Message, Project } from "@/integrations/supabase/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Link, useSearchParams } from "react-router-dom";
@@ -53,7 +54,7 @@ type PortfolioItem = DatabasePortfolioItem & {
 };
 
 // Helper function to get counts from the database response
-const getCounts = (item: any) => ({
+const getCounts = (item: DatabasePortfolioItem) => ({
   likes_count: item.likes_count || 0,
   comments_count: item.comments_count || 0
 });
@@ -69,6 +70,139 @@ export const ConnectionsPage = () => {
   const [messages, setMessages] = useState<MessageWithProfile[]>([]);
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const messageEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+  const [messageOffset, setMessageOffset] = useState(0);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
+  const [previousScrollHeight, setPreviousScrollHeight] = useState(0);
+
+  // Auto-scroll to bottom when conversation changes or new messages arrive, but only if already at bottom
+  useEffect(() => {
+    if (activeConversation && messageEndRef.current && isAtBottom) {
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [activeConversation, messages, isAtBottom]);
+
+  // Handle scroll events in the message container
+  const handleMessageScroll = () => {
+    if (!messageContainerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messageContainerRef.current;
+    // Consider "at bottom" if within 50px of the bottom
+    const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+    setIsAtBottom(atBottom);
+    
+    // Check if user is near the top (within 50px) to load more messages
+    const isNearTop = scrollTop < 50;
+    if (isNearTop && !isLoadingMoreMessages && hasMoreMessages && activeConversation && messages.length > 0) {
+      // Save current scroll height before loading more messages
+      setPreviousScrollHeight(scrollHeight);
+      // Load more messages
+      loadMoreMessages();
+    }
+  };
+
+  // Function to load more messages
+  const loadMoreMessages = async () => {
+    if (!user?.id || !hasMoreMessages || isLoadingMoreMessages) return;
+    
+    setIsLoadingMoreMessages(true);
+    try {
+      const newOffset = messageOffset + 50; // Load 50 more messages
+      
+      // Get older messages with pagination for the active conversation
+      const { data: messagesData, error: messagesError } = await supabase
+        .from('messages')
+        .select('*, read_status')
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${activeConversation},receiver_id.eq.${user.id},sender_id.eq.${activeConversation}`)
+        .order('created_at', { ascending: false }) // Newest first for pagination
+        .range(newOffset, newOffset + 49);
+      
+      if (messagesError) {
+        console.error('Error fetching more messages:', messagesError);
+        throw messagesError;
+      }
+      
+      // If no more messages, set hasMoreMessages to false
+      if (!messagesData || messagesData.length < 50) {
+        setHasMoreMessages(false);
+      }
+      
+      if (!messagesData?.length) {
+        setIsLoadingMoreMessages(false);
+        return;
+      }
+      
+      // Reverse to show oldest first in the UI
+      const chronologicalMessages = [...messagesData].reverse();
+      
+      // Transform messages with sender and receiver profiles
+      const transformedMessages = await Promise.all(chronologicalMessages.map(async (message) => {
+        const [senderResponse, receiverResponse] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('full_name, school_name')
+            .eq('id', message.sender_id)
+            .single(),
+          supabase
+            .from('profiles')
+            .select('full_name, school_name')
+            .eq('id', message.receiver_id)
+            .single()
+        ]);
+        
+        return {
+          ...message,
+          sender_profile: senderResponse.data,
+          receiver_profile: receiverResponse.data
+        };
+      }));
+      
+      // Add older messages to the beginning of the messages array
+      setMessages(prev => [...transformedMessages, ...prev]);
+      setMessageOffset(newOffset);
+      
+      // Restore scroll position after new messages are loaded
+      setTimeout(() => {
+        if (messageContainerRef.current) {
+          const newScrollHeight = messageContainerRef.current.scrollHeight;
+          const scrollDifference = newScrollHeight - previousScrollHeight;
+          messageContainerRef.current.scrollTop = scrollDifference > 0 ? scrollDifference + 10 : 10;
+        }
+      }, 200);
+      
+    } catch (error) {
+      console.error('Error loading more messages:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load more messages",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingMoreMessages(false);
+    }
+  };
+
+  // Function to scroll to bottom on demand
+  const scrollToBottom = () => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      setIsAtBottom(true);
+    }
+  };
+
+  // Focus input when conversation changes and mark messages as read
+  useEffect(() => {
+    if (activeConversation && inputRef.current) {
+      inputRef.current.focus();
+      // Mark messages from this sender as read
+      markMessagesAsRead(activeConversation);
+    }
+  }, [activeConversation, markMessagesAsRead]);
+
   const [portfolioProjects, setPortfolioProjects] = useState<PortfolioItem[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -102,7 +236,6 @@ export const ConnectionsPage = () => {
           },
           async (payload) => {
             if (payload.eventType === 'INSERT') {
-              // Fetch complete message data with profiles separately
               const newMessage = payload.new as Message;
               const [senderResponse, receiverResponse] = await Promise.all([
                 supabase
@@ -122,28 +255,23 @@ export const ConnectionsPage = () => {
                 return;
               }
 
-              // Add the new message with profiles
               setMessages(prev => [...prev, {
                 ...newMessage,
                 sender_profile: senderResponse.data,
                 receiver_profile: receiverResponse.data
               }]);
 
-              // Only refresh counts for new unread messages
               if (!newMessage.read_status) {
                 await refreshCounts();
               }
             } else if (payload.eventType === 'UPDATE') {
               const updatedMessage = payload.new as Message;
-              
-              // Update message while preserving profile data
               setMessages(prev => prev.map(msg => 
                 msg.id === updatedMessage.id
                   ? { ...msg, ...updatedMessage }
                   : msg
               ));
 
-              // If message was marked as read, update the count
               if (payload.old.read_status === false && updatedMessage.read_status === true) {
                 await refreshCounts();
               }
@@ -158,24 +286,31 @@ export const ConnectionsPage = () => {
     }
   }, [user]);
 
-  const fetchMessages = async () => {
+  // Optimized message loading with pagination
+  const fetchMessages = async (limit = 50, offset = 0) => {
     if (!user?.id) return;
 
     try {
-      // Get all messages in a single query with proper read status
+      if (offset === 0) {
+        setMessageOffset(0);
+        setHasMoreMessages(true);
+      }
+      
       const { data: messagesData, error: messagesError } = await supabase
         .from('messages')
         .select('*, read_status')
         .or('sender_id.eq.' + user.id + ',receiver_id.eq.' + user.id)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       if (messagesError) {
         console.error('Error fetching messages:', messagesError);
         throw messagesError;
       }
 
-      // Transform messages with sender and receiver profiles
-      const transformedMessages = await Promise.all((messagesData || []).map(async (message) => {
+      const chronologicalMessages = [...(messagesData || [])].reverse();
+
+      const transformedMessages = await Promise.all(chronologicalMessages.map(async (message) => {
         const [senderResponse, receiverResponse] = await Promise.all([
           supabase
             .from('profiles')
@@ -197,6 +332,12 @@ export const ConnectionsPage = () => {
       }));
 
       setMessages(transformedMessages);
+      
+      setTimeout(() => {
+        if (messageEndRef.current && isAtBottom) {
+          messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
     } catch (error) {
       console.error('Error fetching messages:', error);
       toast({
@@ -210,25 +351,50 @@ export const ConnectionsPage = () => {
   const handleSendMessage = async () => {
     if (!user?.id || !activeConversation || !newMessage.trim()) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage('');
+    
     try {
-      const { error } = await supabase
+      const { data: newMessageData, error } = await supabase
         .from('messages')
         .insert([{
           sender_id: user.id,
           receiver_id: activeConversation,
-          content: newMessage.trim(),
+          content: messageContent,
           read_status: false
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
-      setNewMessage('');
-      await fetchMessages();
+      const [senderResponse, receiverResponse] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('full_name, school_name')
+          .eq('id', user.id)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('full_name, school_name')
+          .eq('id', activeConversation)
+          .single()
+      ]);
 
-      toast({
-        title: "Success",
-        description: "Message sent",
-      });
+      const newMessageWithProfiles = {
+        ...newMessageData,
+        sender_profile: senderResponse.data,
+        receiver_profile: receiverResponse.data
+      };
+
+      setMessages(prev => [...prev, newMessageWithProfiles]);
+      
+      setTimeout(() => {
+        if (messageEndRef.current) {
+          messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+          setIsAtBottom(true);
+        }
+      }, 100);
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -243,7 +409,6 @@ export const ConnectionsPage = () => {
     if (!user?.id) return;
 
     try {
-      // First get all accepted connections
       const { data: connectionsData, error: connectionsError } = await supabase
         .from('connections')
         .select('*')
@@ -253,7 +418,6 @@ export const ConnectionsPage = () => {
 
       if (connectionsError) throw connectionsError;
 
-      // Then fetch profiles for the other users in each connection
       const transformedConnections = await Promise.all((connectionsData || []).map(async (connection) => {
         const otherUserId = connection.requester_id === user.id 
           ? connection.receiver_id 
@@ -286,7 +450,6 @@ export const ConnectionsPage = () => {
     if (!user?.id) return;
 
     try {
-      // Get pending requests
       const { data: requestsData, error: requestsError } = await supabase
         .from('connections')
         .select('*')
@@ -296,7 +459,6 @@ export const ConnectionsPage = () => {
 
       if (requestsError) throw requestsError;
 
-      // Fetch profiles for requesters
       const transformedRequests = await Promise.all((requestsData || []).map(async (request) => {
         const { data: profileData } = await supabase
           .from('profiles')
@@ -322,10 +484,8 @@ export const ConnectionsPage = () => {
   };
 
   const handleTabChange = async (value: string) => {
-    // Update URL with current tab
     setSearchParams({ tab: value });
     
-    // Load more projects when switching to portfolio tab
     if (value === 'portfolio' && portfolioProjects.length === 0) {
       await fetchPortfolioProjects();
     }
@@ -337,7 +497,6 @@ export const ConnectionsPage = () => {
     try {
       setIsLoadingMore(true);
 
-      // First fetch portfolio items
       const { data: projectsData, error: projectsError } = await supabase
         .from('portfolio_items')
         .select('*')
@@ -346,14 +505,6 @@ export const ConnectionsPage = () => {
 
       if (projectsError) throw projectsError;
 
-      // If no more projects, set hasMore to false
-      if (!projectsData || projectsData.length < 5) {
-        setHasMore(false);
-      }
-
-      if (projectsError) throw projectsError;
-
-      // If no more items, set hasMore to false
       if (!projectsData || projectsData.length < 5) {
         setHasMore(false);
       }
@@ -363,13 +514,11 @@ export const ConnectionsPage = () => {
         return;
       }
 
-      // Then fetch profiles for those items
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, full_name, school_name')
         .in('id', projectsData.map(item => item.owner_id));
 
-      // Check which items are liked by the current user
       const { data: likesData } = await supabase
         .from('portfolio_likes')
         .select('portfolio_item_id')
@@ -378,14 +527,16 @@ export const ConnectionsPage = () => {
 
       const likedItemIds = new Set(likesData?.map(like => like.portfolio_item_id));
 
-      // Combine the data
-      const transformedProjects = projectsData.map(item => ({
-        ...item,
-        user_profile: profilesData?.find(profile => profile.id === item.owner_id) || null,
-        is_liked: likedItemIds.has(item.id),
-        likes_count: item.likes_count || 0,
-        comments_count: item.comments_count || 0
-      }));
+      const transformedProjects = projectsData.map(item => {
+        const counts = getCounts(item);
+        return {
+          ...item,
+          user_profile: profilesData?.find(profile => profile.id === item.owner_id) || null,
+          is_liked: likedItemIds.has(item.id),
+          likes_count: counts.likes_count,
+          comments_count: counts.comments_count
+        };
+      });
 
       setPortfolioProjects(prev => 
         offset === 0 ? transformedProjects : [...prev, ...transformedProjects]
@@ -472,7 +623,6 @@ export const ConnectionsPage = () => {
       if (!item) return;
 
       if (item.is_liked) {
-        // Unlike
         const { error } = await supabase
           .from('portfolio_likes')
           .delete()
@@ -487,7 +637,6 @@ export const ConnectionsPage = () => {
             : item
         ));
       } else {
-        // Like
         const { error } = await supabase
           .from('portfolio_likes')
           .insert({
@@ -549,357 +698,299 @@ export const ConnectionsPage = () => {
     );
   }
 
+  // Helper: Build conversations list from messages grouped by conversation partner
+  const conversations = Object.values(
+    messages.reduce((acc: { [key: string]: MessageWithProfile }, message) => {
+      const conversationId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
+      // Always keep the latest message for this conversation
+      if (!acc[conversationId] || new Date(message.created_at) > new Date(acc[conversationId].created_at)) {
+        acc[conversationId] = message;
+      }
+      return acc;
+    }, {} as { [key: string]: MessageWithProfile })
+  ).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Filter messages for the active conversation
+  const activeMessages = activeConversation
+    ? messages.filter(msg =>
+        msg.sender_id === activeConversation || msg.receiver_id === activeConversation
+      )
+    : [];
+
   return (
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Connections</h1>
-      </div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Connections</h1>
+        </div>
 
-      <Tabs defaultValue={searchParams.get('tab') || 'connections'} className="w-full" onValueChange={handleTabChange}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="connections" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            My Connections
-          </TabsTrigger>
-          <TabsTrigger value="requests" className="flex items-center gap-2">
-            <div className="relative">
-              <UserPlus className="h-4 w-4" />
-              {pendingConnectionsCount > 0 && (
-                <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs">
-                  {pendingConnectionsCount}
-                </Badge>
-              )}
-            </div>
-            Connection Requests
-          </TabsTrigger>
-          <TabsTrigger value="messages" className="flex items-center gap-2">
-            <div className="relative">
-              <MessageSquare className="h-4 w-4" />
-              <NotificationBadge type="messages" />
-            </div>
-            Messages
-          </TabsTrigger>
-          <TabsTrigger value="portfolio" className="flex items-center gap-2">
-            <Folder className="h-4 w-4" />
-            Portfolio Feed
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue={searchParams.get('tab') || 'connections'} className="w-full" onValueChange={handleTabChange}>
+          <TabsList className="mb-4">
+            <TabsTrigger value="connections" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              My Connections
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2">
+              <div className="relative">
+                <UserPlus className="h-4 w-4" />
+                {pendingConnectionsCount > 0 && (
+                  <Badge variant="destructive" className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-xs">
+                    {pendingConnectionsCount}
+                  </Badge>
+                )}
+              </div>
+              Connection Requests
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="flex items-center gap-2">
+              <div className="relative">
+                <MessageSquare className="h-4 w-4" />
+                <NotificationBadge type="messages" />
+              </div>
+              Messages
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="flex items-center gap-2">
+              <Folder className="h-4 w-4" />
+              Portfolio Feed
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="connections">
-          <Card className="p-6">
-            {connections.length === 0 ? (
-              <div className="text-center text-muted-foreground">
-                <Users className="h-12 w-12 mx-auto mb-2" />
-                <h3 className="text-lg font-medium">No connections yet</h3>
-                <p className="mb-4">Start connecting with other students to grow your network!</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {connections.map((connection) => (
-                  <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Avatar>
-                        <AvatarFallback>
-                          {connection.other_user_profile?.full_name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Link 
-                          to={`/profile/${connection.requester_id === user?.id ? connection.receiver_id : connection.requester_id}`}
-                          className="font-medium hover:text-primary"
-                        >
-                          {connection.other_user_profile?.full_name}
-                        </Link>
-                        <p className="text-sm text-muted-foreground">
-                          {connection.other_user_profile?.school_name}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveConnection(connection.id)}
-                      className="text-destructive hover:text-destructive/90"
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="requests">
-          <Card className="p-6">
-            {pendingRequests.length === 0 ? (
-              <div className="text-center text-muted-foreground">
-                <UserPlus className="h-12 w-12 mx-auto mb-2" />
-                <h3 className="text-lg font-medium">No pending requests</h3>
-                <p className="mb-4">You don't have any connection requests at the moment.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {pendingRequests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Avatar>
-                        <AvatarFallback>
-                          {request.other_user_profile?.full_name?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <Link 
-                          to={`/profile/${request.requester_id}`}
-                          className="font-medium hover:text-primary"
-                        >
-                          {request.other_user_profile?.full_name}
-                        </Link>
-                        <p className="text-sm text-muted-foreground">
-                          {request.other_user_profile?.school_name}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleAcceptRequest(request.id)}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleRejectRequest(request.id)}
-                        className="text-destructive hover:text-destructive/90"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="portfolio">
-          <Card className="p-0">
-            <div 
-              className="max-w-xl mx-auto py-4 px-0 overflow-y-auto"
-              style={{ height: 'calc(100vh - 200px)' }}
-              onScroll={handleScroll}
-            >
-              {portfolioProjects.length === 0 && !isLoadingMore ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Folder className="h-12 w-12 mx-auto mb-2" />
-                  <h3 className="text-lg font-medium">No projects yet</h3>
-                  <p>Connect with more students to see their portfolio projects!</p>
+          {/* Connections Tab */}
+          <TabsContent value="connections">
+            <Card className="p-6">
+              {connections.length === 0 ? (
+                <div className="text-center text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-2" />
+                  <h3 className="text-lg font-medium">No connections yet</h3>
+                  <p className="mb-4">Start connecting with other students to grow your network!</p>
                 </div>
               ) : (
-                <>
-                  {portfolioProjects.map((project) => (
-                    <PortfolioFeedCard
-                      key={project.id}
-                      id={project.id}
-                      title={project.title}
-                      description={project.description}
-                      imageUrl={project.image_url}
-                      createdAt={project.created_at}
-                      likes={project.likes_count}
-                      comments={project.comments_count}
-                      isLiked={project.is_liked}
-                      onLike={() => handleLike(project.id)}
-                      user={{
-                        id: project.owner_id,
-                        name: project.user_profile?.full_name || 'Unknown',
-                        school: project.user_profile?.school_name || 'Unknown'
-                      }}
-                    />
-                  ))}
-                  {isLoadingMore && (
-                    <div className="text-center py-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="messages">
-          <Card className="p-6">
-            <div className="grid grid-cols-[300px_1fr] gap-6 min-h-[600px]">
-              {/* Conversations List */}
-              <div className="border-r pr-6">
-                <div className="mb-4">
-                  <h3 className="font-medium">Conversations</h3>
-                </div>
                 <div className="space-y-4">
-                  {connections.map((connection) => {
-                    const otherUserId = connection.requester_id === user?.id 
-                      ? connection.receiver_id 
-                      : connection.requester_id;
-                    
-                    // Only show unread indicator for messages where user is the receiver
-                    const hasUnreadMessages = messages.some(msg => 
-                      msg.sender_id === otherUserId && 
-                      msg.receiver_id === user?.id && 
-                      !msg.read_status
-                    );
-                    
-                    return (
-                      <button
-                        key={connection.id}
-                        onClick={async () => {
-                          setActiveConversation(otherUserId);
-                          
-                          // Mark messages as read when opening conversation
-                          const unreadMessages = messages.filter(msg => 
-                            msg.sender_id === otherUserId && 
-                            msg.receiver_id === user?.id && 
-                            !msg.read_status
-                          );
-                          
-                          if (unreadMessages.length > 0) {
-                            try {
-                              await markMessagesAsRead(otherUserId);
-                              // Update local state immediately
-                              setMessages(prev => prev.map(msg => 
-                                msg.sender_id === otherUserId && 
-                                msg.receiver_id === user?.id && 
-                                !msg.read_status
-                                  ? { ...msg, read_status: true }
-                                  : msg
-                              ));
-                            } catch (error) {
-                              console.error('Error marking messages as read:', error);
-                              toast({
-                                title: "Error",
-                                description: "Failed to update message status",
-                                variant: "destructive",
-                              });
-                            }
-                          }
-                        }}
-                        className={`flex items-center gap-4 p-4 w-full rounded-lg transition-colors ${
-                          activeConversation === otherUserId
-                            ? 'bg-primary/10'
-                            : hasUnreadMessages
-                            ? 'bg-blue-50 hover:bg-blue-100'
-                            : 'hover:bg-muted'
-                        }`}
-                      >
+                  {connections.map((connection) => (
+                    <div key={connection.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
                         <Avatar>
                           <AvatarFallback>
                             {connection.other_user_profile?.full_name?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="text-left">
-                          <div className="font-medium">
+                        <div>
+                          <Link 
+                            to={`/profile/${connection.requester_id === user?.id ? connection.receiver_id : connection.requester_id}`}
+                            className="font-medium hover:text-primary"
+                          >
                             {connection.other_user_profile?.full_name}
-                          </div>
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {connection.other_user_profile?.school_name}
                           </p>
                         </div>
-                        {hasUnreadMessages && (
-                          <div className="ml-auto">
-                            <div className="w-2 h-2 rounded-full bg-blue-500" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Message Thread */}
-              <div className="flex flex-col">
-                {activeConversation ? (
-                  <>
-                    {/* Messages */}
-                    <div className="flex-1 space-y-4 mb-4 overflow-y-auto">
-                      {messages
-                        .filter(msg => 
-                          (msg.sender_id === user?.id && msg.receiver_id === activeConversation) ||
-                          (msg.receiver_id === user?.id && msg.sender_id === activeConversation)
-                        )
-                        .map((message) => (
-                          <div
-                            key={message.id}
-                            className={`flex flex-col ${
-                              message.sender_id === user?.id ? 'items-end' : 'items-start'
-                            }`}
-                          >
-                            <span className="text-xs text-muted-foreground mb-1">
-                              {message.sender_id === user?.id ? 'You' : message.sender_profile?.full_name}
-                            </span>
-                            <div
-                              className={`max-w-[70%] rounded-lg p-3 ${
-                                message.sender_id === user?.id
-                                  ? 'bg-primary text-primary-foreground'
-                                  : 'bg-muted'
-                              }`}
-                            >
-                              <p>{message.content}</p>
-                              <span className="text-xs opacity-70">
-                                {new Date(message.created_at).toLocaleTimeString()}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-
-                    {/* Message Input */}
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <label 
-                          htmlFor="message-input"
-                          className="sr-only" // Visually hidden but accessible to screen readers
-                        >
-                          Type a message
-                        </label>
-                        <input
-                          id="message-input"
-                          type="text"
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              handleSendMessage();
-                            }
-                          }}
-                          placeholder="Type a message..."
-                          className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary"
-                        />
                       </div>
                       <Button
-                        onClick={handleSendMessage}
-                        disabled={!newMessage.trim()}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveConnection(connection.id)}
+                        className="text-destructive hover:text-destructive/90"
                       >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Requests Tab */}
+          <TabsContent value="requests">
+            <Card className="p-6">
+              {pendingRequests.length === 0 ? (
+                <div className="text-center text-muted-foreground">
+                  <UserPlus className="h-12 w-12 mx-auto mb-2" />
+                  <h3 className="text-lg font-medium">No pending requests</h3>
+                  <p className="mb-4">You don't have any connection requests at the moment.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {pendingRequests.map((request) => (
+                    <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <Avatar>
+                          <AvatarFallback>
+                            {request.other_user_profile?.full_name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <Link 
+                            to={`/profile/${request.requester_id}`}
+                            className="font-medium hover:text-primary"
+                          >
+                            {request.other_user_profile?.full_name}
+                          </Link>
+                          <p className="text-sm text-muted-foreground">
+                            {request.other_user_profile?.school_name}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptRequest(request.id)}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleRejectRequest(request.id)}
+                          className="text-destructive hover:text-destructive/90"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Messages Tab */}
+          <TabsContent value="messages">
+            <Card className="p-0 overflow-hidden">
+              <div className="grid grid-cols-[320px_1fr] h-[600px] max-h-[80vh]">
+                {/* Left sidebar: Conversations list */}
+                <div className="border-r overflow-y-auto">
+                  <div className="p-4 border-b">
+                    <h3 className="font-semibold text-lg">Messages</h3>
+                  </div>
+                  {conversations.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No conversations yet.
+                    </div>
+                  ) : (
+                    conversations.map(convo => {
+                      // Determine conversation partner name
+                      const conversationPartnerId = convo.sender_id === user.id ? convo.receiver_id : convo.sender_id;
+                      const partnerProfile = convo.sender_id === user.id ? convo.receiver_profile : convo.sender_profile;
+                      return (
+                        <button
+                          key={conversationPartnerId}
+                          onClick={() => setActiveConversation(conversationPartnerId)}
+                          className={`w-full text-left p-4 border-b hover:bg-muted ${
+                            activeConversation === conversationPartnerId ? 'bg-muted' : ''
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarFallback>
+                                {partnerProfile?.full_name?.charAt(0)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{partnerProfile?.full_name || 'Unknown User'}</p>
+                              <p className="text-sm text-muted-foreground line-clamp-1">
+                                {convo.content}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+                {/* Right panel: Active conversation */}
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto p-4 h-full max-h-[calc(600px-120px)]" ref={messageContainerRef} onScroll={handleMessageScroll}>
+                    {activeConversation ? (
+                      activeMessages.length === 0 ? (
+                        <div className="text-center text-muted-foreground">
+                          No messages in this conversation yet.
+                        </div>
+                      ) : (
+                        activeMessages.map(msg => (
+                          <div
+                            key={msg.id}
+                            className={`mb-2 flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
+                          >
+                            <div className={`rounded-lg p-2 max-w-xs ${msg.sender_id === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-900'}`}>
+                              {msg.content}
+                            </div>
+                          </div>
+                        ))
+                      )
+                    ) : (
+                      <div className="text-center text-muted-foreground">
+                        Select a conversation to start messaging.
+                      </div>
+                    )}
+                    <div ref={messageEndRef} />
+                  </div>
+                  {activeConversation && (
+                    <div className="p-4 border-t flex gap-2">
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        className="flex-1 border rounded px-3 py-2"
+                        placeholder="Type your message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSendMessage();
+                        }}
+                      />
+                      <Button onClick={handleSendMessage}>
                         <Send className="h-4 w-4" />
                       </Button>
                     </div>
-                  </>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio">
+            <Card className="p-4">
+              <ScrollArea onScroll={handleScroll} className="h-[600px]">
+                {portfolioProjects.length === 0 ? (
+                  <div className="text-center text-muted-foreground py-10">
+                    No portfolio projects yet.
+                  </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
-                    Select a conversation to start messaging
+                  <div className="space-y-4">
+                    {portfolioProjects.map(project => (
+                      <PortfolioFeedCard
+                        key={project.id}
+                        id={project.id}
+                        title={project.title}
+                        description={project.description}
+                        imageUrl={project.image_url}
+                        createdAt={project.created_at}
+                        likes={project.likes_count}
+                        comments={project.comments_count}
+                        user={{
+                          id: project.owner_id,
+                          name: project.user_profile?.full_name || 'Unknown',
+                          school: project.user_profile?.school_name || 'Unknown'
+                        }}
+                        isLiked={project.is_liked}
+                        onLike={() => handleLike(project.id)}
+                      />
+                    ))}
+                    {isLoadingMore && (
+                      <div className="text-center py-4 text-muted-foreground">
+                        Loading more projects...
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </ScrollArea>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </>
   );
 };
-
-export default ConnectionsPage;
