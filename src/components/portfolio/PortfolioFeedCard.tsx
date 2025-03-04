@@ -88,16 +88,16 @@ export const PortfolioFeedCard = ({
       <div className="flex items-center justify-between mb-3 px-4">
         <div className="flex items-center gap-3">
           <Avatar>
-            <AvatarFallback>{user.name[0]}</AvatarFallback>
+            <AvatarFallback>{user?.name && user.name.length > 0 ? user.name[0] : '?'}</AvatarFallback>
           </Avatar>
           <div>
             <Link 
-              to={`/profile/${user.id}`}
+              to={`/profile/${user?.id || '#'}`}
               className="font-semibold hover:underline"
             >
-              {user.name}
+              {user?.name || 'Unknown User'}
             </Link>
-            <p className="text-sm text-muted-foreground">{user.school}</p>
+            <p className="text-sm text-muted-foreground">{user?.school || 'Unknown School'}</p>
           </div>
         </div>
         <span className="text-sm text-muted-foreground">{timeAgo(createdAt)}</span>

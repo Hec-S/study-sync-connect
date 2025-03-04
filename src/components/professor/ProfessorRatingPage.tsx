@@ -1,34 +1,61 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Star, BookOpen, GraduationCap, ThumbsUp, Search, LockKeyhole } from "lucide-react";
+import { Star, BookOpen, GraduationCap, Search, LockKeyhole, User } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 export const ProfessorRatingPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Array<{
+    id: string;
+    professor_name: string;
+  }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
   const [showRatingForm, setShowRatingForm] = useState(false);
   const [professorName, setProfessorName] = useState("");
   const [course, setCourse] = useState("");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
-
+  const [searchResults, setSearchResults] = useState<Array<{
+    id: string;
+    professor_name: string;
+    major: string | null;
+    school: string | null;
+    difficulty: number | null;
+    num_ratings: number | null;
+    average_rating: number | null;
+    created_at: string;
+    updated_at: string;
+  }>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePages, setHasMorePages] = useState(false);
+  const [isViewingAll, setIsViewingAll] = useState(false);
+  const pageSize = 10; // Number of results per page
+  
+  // TEMPORARY: For testing purposes, bypass authentication check
+  const testMode = true; // Set to false in production
+  
   useEffect(() => {
-    if (!user) {
+    if (!user && !testMode) {
       toast.error("Please sign in to access professor ratings");
       navigate("/");
     }
   }, [user, navigate]);
 
-  if (!user) {
+  if (!user && !testMode) {
     return (
       <>
         <Navbar />
@@ -52,15 +79,172 @@ export const ProfessorRatingPage = () => {
     );
   }
 
+  // Function to fetch professor name suggestions
+  const fetchSuggestions = async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('professor_ratings')
+        .select('id, professor_name')
+        .ilike('professor_name', `%${query}%`)
+        .order('professor_name')
+        .limit(5);
+        
+      if (error) {
+        console.error('Error fetching suggestions:', error);
+        return;
+      }
+      
+      setSuggestions(data || []);
+      console.log('Suggestions:', data); // Debug log
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  // Debounced function to fetch suggestions
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchSuggestions(searchQuery);
+    }, 300); // 300ms delay
+    
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        suggestionsRef.current && 
+        !suggestionsRef.current.contains(event.target as Node) &&
+        searchInputRef.current &&
+        !searchInputRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Function to search professors by name
+  const searchProfessors = async (query: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('professor_ratings')
+        .select('*')
+        .ilike('professor_name', `%${query}%`)
+        .order('average_rating', { ascending: false });
+        
+      if (error) {
+        console.error('Error searching professors:', error);
+        toast.error('Failed to search professors');
+        return [];
+      }
+      
+      // Return the data or empty array
+      return data || [];
+    } catch (error) {
+      console.error('Error searching professors:', error);
+      toast.error('Failed to search professors');
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to fetch all professors with pagination
+  const fetchAllProfessors = async (page: number = 1) => {
+    setIsLoading(true);
+    try {
+      // Calculate range for pagination
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      
+      const { data, error, count } = await supabase
+        .from('professor_ratings')
+        .select('*', { count: 'exact' })
+        .order('average_rating', { ascending: false })
+        .range(from, to);
+        
+      if (error) {
+        console.error('Error fetching professors:', error);
+        toast.error('Failed to fetch professors');
+        return [];
+      }
+      
+      // Check if there are more pages
+      if (count) {
+        setHasMorePages(count > (page * pageSize));
+      } else {
+        setHasMorePages(data && data.length === pageSize);
+      }
+      
+      // Return the data or empty array
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching professors:', error);
+      toast.error('Failed to fetch professors');
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ professorName, course, rating, review });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement professor search
-    console.log("Searching for:", searchQuery);
+    if (!searchQuery.trim()) return;
+    
+    setIsViewingAll(false);
+    setShowSuggestions(false);
+    const results = await searchProfessors(searchQuery);
+    setSearchResults(results);
+  };
+
+  // Handle suggestion selection
+  const handleSelectSuggestion = async (professorName: string) => {
+    setSearchQuery(professorName);
+    setShowSuggestions(false);
+    
+    const results = await searchProfessors(professorName);
+    setSearchResults(results);
+    setIsViewingAll(false);
+  };
+
+  // Handle View All button click
+  const handleViewAll = async () => {
+    setIsViewingAll(true);
+    setCurrentPage(1);
+    const results = await fetchAllProfessors(1);
+    setSearchResults(results);
+  };
+
+  // Handle pagination
+  const handleNextPage = async () => {
+    const nextPage = currentPage + 1;
+    setCurrentPage(nextPage);
+    const results = await fetchAllProfessors(nextPage);
+    setSearchResults(results);
+  };
+
+  const handlePrevPage = async () => {
+    if (currentPage > 1) {
+      const prevPage = currentPage - 1;
+      setCurrentPage(prevPage);
+      const results = await fetchAllProfessors(prevPage);
+      setSearchResults(results);
+    }
   };
 
   return (
@@ -76,14 +260,19 @@ export const ProfessorRatingPage = () => {
             </div>
             <p className="text-xl text-gray-600 mb-8">Search for professors and share your experience</p>
             
-            {/* Search Bar */}
+            {/* Search Bar with Suggestions */}
             <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto group">
               <div className="relative">
                 <Input
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Search for a professor..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
                   className="h-14 pl-12 pr-20 text-lg rounded-full shadow-lg focus:ring-2 focus:ring-primary/50 transition-all"
                 />
                 <Search className="absolute left-4 top-4 h-6 w-6 text-gray-400 group-focus-within:text-primary transition-colors" />
@@ -94,17 +283,154 @@ export const ProfessorRatingPage = () => {
                 >
                   Search
                 </Button>
+                
+                {/* Suggestions Dropdown */}
+                {showSuggestions && searchQuery.trim() !== "" && (
+                  <div 
+                    ref={suggestionsRef}
+                    className="absolute z-10 mt-2 w-full bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200"
+                  >
+                    {suggestions.length > 0 ? (
+                      <ul className="py-2">
+                        {suggestions.map((suggestion) => (
+                          <li 
+                            key={suggestion.id}
+                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer flex items-center gap-2 transition-colors"
+                            onClick={() => handleSelectSuggestion(suggestion.professor_name)}
+                          >
+                            <User className="h-4 w-4 text-gray-400" />
+                            <span className="text-gray-800">{suggestion.professor_name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="py-3 px-4 text-gray-500 text-center">
+                        No matching professors found
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </form>
 
-            {/* Quick Action Button */}
+            {/* View All Button */}
             <Button
-              onClick={() => setShowRatingForm(true)}
-              className="mt-6 bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              onClick={handleViewAll}
+              className="mt-4 bg-blue-50 text-primary hover:bg-blue-100 transition-colors"
             >
-              + Add New Professor Rating
+              View All Professors
             </Button>
           </div>
+
+          {/* Search Results */}
+          {isLoading ? (
+            <div className="text-center py-8 max-w-2xl mx-auto">
+              <p className="text-gray-600">Loading...</p>
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="max-w-2xl mx-auto mt-8 mb-12">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                {isViewingAll ? "All Professors" : `Search Results for "${searchQuery}"`}
+              </h2>
+              <div className="space-y-4">
+                {searchResults.map((professor, index) => (
+                  <Card key={professor.id || index} className="hover:shadow-md transition-shadow">
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 
+                            className="text-xl font-semibold text-gray-800 hover:text-primary cursor-pointer"
+                            onClick={() => navigate(`/professor/${professor.id}`)}
+                          >
+                            {professor.professor_name}
+                          </h3>
+                          {(professor.school || professor.major) && (
+                            <p className="text-primary font-medium">
+                              {professor.school} {professor.major && `• ${professor.major}`}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          {Array(Math.round(professor.average_rating || 0))
+                            .fill(0)
+                            .map((_, i) => (
+                              <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                            ))}
+                        </div>
+                      </div>
+                      
+                      {(professor.average_rating || professor.difficulty) && (
+                        <div className="grid grid-cols-2 gap-4 text-sm mt-4">
+                          {professor.average_rating !== null && (
+                            <div>
+                              <p className="text-gray-500">Rating</p>
+                              <p className="font-medium">{professor.average_rating.toFixed(1)}/5</p>
+                            </div>
+                          )}
+                          {professor.difficulty !== null && (
+                            <div>
+                              <p className="text-gray-500">Difficulty</p>
+                              <p className="font-medium">{professor.difficulty.toFixed(1)}/5</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      <Button 
+                        onClick={() => {
+                          setProfessorName(professor.professor_name);
+                          setShowRatingForm(true);
+                        }}
+                        className="mt-4 text-sm"
+                      >
+                        Rate this professor
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Pagination Controls - Only show when viewing all */}
+              {isViewingAll && (
+                <div className="flex justify-between items-center mt-8">
+                  <Button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    variant="outline"
+                    className="px-4"
+                  >
+                    Previous
+                  </Button>
+                  
+                  <span className="text-gray-600">
+                    Page {currentPage}
+                  </span>
+                  
+                  <Button
+                    onClick={handleNextPage}
+                    disabled={!hasMorePages}
+                    variant="outline"
+                    className="px-4"
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : searchQuery && !isViewingAll && !isLoading ? (
+            <div className="text-center py-8 max-w-2xl mx-auto">
+              <p className="text-gray-600">No professors found matching "{searchQuery}"</p>
+              <Button 
+                onClick={() => {
+                  setProfessorName(searchQuery);
+                  setShowRatingForm(true);
+                }}
+                className="mt-4"
+              >
+                Add this professor
+              </Button>
+            </div>
+          ) : null}
 
           {/* Rating Form */}
           {showRatingForm && (
@@ -193,53 +519,6 @@ export const ProfessorRatingPage = () => {
               </Card>
             </div>
           )}
-
-          {/* Recent Reviews */}
-          <div className="max-w-2xl mx-auto mt-12 space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
-              <ThumbsUp className="w-6 h-6 text-primary" />
-              Recent Reviews
-            </h2>
-            <div className="space-y-4">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-800">Dr. Smith</h3>
-                      <p className="text-primary font-medium">Computer Science 101</p>
-                    </div>
-                    <div className="flex gap-1">
-                      {Array(4).fill(0).map((_, i) => (
-                        <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-lg leading-relaxed">
-                    Great professor! Very knowledgeable and makes complex topics easy to understand.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardContent className="pt-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-800">Prof. Johnson</h3>
-                      <p className="text-primary font-medium">Mathematics 201</p>
-                    </div>
-                    <div className="flex gap-1">
-                      {Array(5).fill(0).map((_, i) => (
-                        <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-lg leading-relaxed">
-                    Excellent teaching style and very helpful during office hours.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </>

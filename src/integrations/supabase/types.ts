@@ -39,6 +39,42 @@ export type Project = {
 export type Database = {
   public: {
     Tables: {
+      professor_ratings: {
+        Row: {
+          id: string
+          professor_name: string
+          major: string | null
+          school: string | null
+          difficulty: number | null
+          num_ratings: number | null
+          average_rating: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          professor_name: string
+          major?: string | null
+          school?: string | null
+          difficulty?: number | null
+          num_ratings?: number | null
+          average_rating?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          professor_name?: string
+          major?: string | null
+          school?: string | null
+          difficulty?: number | null
+          num_ratings?: number | null
+          average_rating?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_likes: {
         Row: {
           id: string
