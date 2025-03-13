@@ -20,6 +20,7 @@ import { MarketplacePage } from "@/components/marketplace/MarketplacePage";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 import { ConnectionsPage } from "@/components/connections/ConnectionsPage";
 import { ProfessorRatingPage } from "@/components/professor/ProfessorRatingPage";
+import { ProfessorProfilePage } from "@/components/professor/ProfessorProfilePage";
 import { UtepAssistantPage } from "@/components/utep-assistant/UtepAssistantPage";
 import { useEffect } from "react";
 
@@ -68,6 +69,7 @@ const AppContent = () => {
       <Route path="/portfolio-landing" element={<PortfolioLanding />} />
       <Route path="/portfolio-feed" element={<ProtectedRoute><PortfolioFeedPage /></ProtectedRoute>} />
       <Route path="/professor-rating" element={<ProfessorRatingPage />} />
+      <Route path="/professor/:id" element={<ProfessorProfilePage />} />
       <Route path="/utep-assistant" element={<ProtectedRoute><UtepAssistantPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

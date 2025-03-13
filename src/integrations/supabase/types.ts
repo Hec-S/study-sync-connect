@@ -6,6 +6,29 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type ProfessorRating = {
+  id: string;
+  professor_name: string;
+  major: string;
+  school: string;
+  difficulty: number;
+  num_ratings: number;
+  average_rating: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProfessorReview = {
+  id: string;
+  professor_id: string;
+  user_id: string;
+  course: string;
+  rating: number;
+  review: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Connection = {
   id: string;
   requester_id: string;
@@ -316,6 +339,88 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      professor_ratings: {
+        Row: {
+          id: string
+          professor_name: string
+          major: string
+          school: string
+          difficulty: number
+          num_ratings: number
+          average_rating: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          professor_name: string
+          major: string
+          school: string
+          difficulty: number
+          num_ratings?: number
+          average_rating?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          professor_name?: string
+          major?: string
+          school?: string
+          difficulty?: number
+          num_ratings?: number
+          average_rating?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      professor_reviews: {
+        Row: {
+          id: string
+          professor_id: string
+          user_id: string
+          course: string
+          rating: number
+          review: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          professor_id: string
+          user_id: string
+          course: string
+          rating: number
+          review: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          professor_id?: string
+          user_id?: string
+          course?: string
+          rating?: number
+          review?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professor_reviews_professor_id_fkey"
+            columns: ["professor_id"]
+            referencedRelation: "professor_ratings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professor_reviews_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       user_roles: {
         Row: {
